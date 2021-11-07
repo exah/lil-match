@@ -1,0 +1,41 @@
+{
+  "name": "nano-match-pattern",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": "./mod.js",
+  "types": "./mod.d.ts",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "size": "size-limit"
+  },
+  "author": "John Grishin <r@exah.me>",
+  "license": "ISC",
+  "size-limit": [
+    {
+      "path": "./mod.js",
+      "limit": "50B"
+    }
+  ],
+  "jest": {
+    "preset": "ts-jest",
+    "transform": {},
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
+    }
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^6.0.4",
+    "@types/jest": "^27.0.2",
+    "jest": "^27.3.1",
+    "size-limit": "^6.0.4",
+    "ts-jest": "^27.0.7",
+    "tsd": "^0.18.0",
+    "typescript": "^4.5.0-beta"
+  }
+}
