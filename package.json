@@ -1,13 +1,12 @@
 {
-  "name": "nano-match-pattern",
-  "version": "1.0.0",
-  "description": "",
+  "name": "lil-match",
+  "version": "0.0.0",
+  "description": "Super simple pattern matching library for TS projects",
   "type": "module",
-  "exports": "./mod.js",
+  "main": "./mod.js",
   "types": "./mod.d.ts",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "size": "size-limit"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "author": "John Grishin <r@exah.me>",
   "license": "ISC",
@@ -33,6 +32,7 @@
     "@size-limit/preset-small-lib": "^6.0.4",
     "@types/jest": "^27.0.2",
     "jest": "^27.3.1",
+    "np": "^7.5.0",
     "size-limit": "^6.0.4",
     "ts-jest": "^27.0.7",
     "tsd": "^0.18.0",
