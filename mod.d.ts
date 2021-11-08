@@ -1,11 +1,20 @@
-declare type Pattern<Input> = Input extends string | number | boolean
+declare type Primitives =
+  | number
+  | boolean
+  | string
+  | symbol
+  | bigint
+  | undefined
+  | null
+
+declare type Pattern<Input> = Input extends Primitives
   ? Input
-  : { [K in keyof Input]?: Pattern<Input[K]> }
+  : { readonly [K in keyof Input]?: Pattern<Input[K]> }
 
 interface Match<Input, Output = never> {
   with<P extends Pattern<Input>, O>(
     pattern: P,
-    callback: (result: Input extends P ? Input : never) => O,
+    callback: (result: Extract<Input, P>) => O,
   ): Match<Exclude<Input, P>, O | Output>
   run(): [Input] extends [never] ? Output : Output | undefined
   otherwise: [Input] extends [never]
