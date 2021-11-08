@@ -25,8 +25,8 @@ export function match(input, output = UNKNOWN) {
       if (output === UNKNOWN) throw new Error(message)
       return output
     },
-    get() {
-      if (output === UNKNOWN) return
+    get(fallback) {
+      if (output === UNKNOWN) return fallback
       return output
     },
   }

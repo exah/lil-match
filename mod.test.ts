@@ -1,6 +1,8 @@
 import { expectType } from 'tsd'
 import { match } from '.'
 
+const ERROR = 'ERROR'
+const FALLBACK = 'FALLBACK'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
 
 enum Enum {
@@ -44,7 +46,7 @@ describe('enum', () => {
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
   })
 
-  test('get undefined', () => {
+  test('get fallback', () => {
     function fn(input: Enum) {
       const result = match(input)
         .with(Enum.PENDING, (res) => {
@@ -55,15 +57,15 @@ describe('enum', () => {
           expectType<Enum.READY>(res)
           return res
         })
-        .get()
+        .get(FALLBACK)
 
-      expectType<Enum | undefined>(result)
+      expectType<Enum | typeof FALLBACK>(result)
       return result
     }
 
     expect(fn(Enum.PENDING)).toBe(0)
     expect(fn(Enum.READY)).toBe(1)
-    expect(fn(Enum.FAILED)).toBe(undefined)
+    expect(fn(Enum.FAILED)).toBe(FALLBACK)
   })
 
   test('exhaustive', () => {
@@ -81,7 +83,7 @@ describe('enum', () => {
           expectType<Enum.FAILED>(res)
           return res
         })
-        .exhaustive('Not exhaustive')
+        .exhaustive(ERROR)
 
       expectType<Enum>(result)
       return result
@@ -92,7 +94,7 @@ describe('enum', () => {
     expect(fn(Enum.FAILED)).toBe(2)
 
     // @ts-expect-error
-    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error('Not exhaustive'))
+    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
   })
 
   test('not exhaustive', () => {
@@ -107,7 +109,7 @@ describe('enum', () => {
           return res
         })
         // @ts-expect-error
-        .exhaustive('Not exhaustive')
+        .exhaustive(ERROR)
 
       expectType<Enum>(result)
       return result
@@ -115,7 +117,7 @@ describe('enum', () => {
 
     expect(fn(Enum.PENDING)).toBe(0)
     expect(fn(Enum.READY)).toBe(1)
-    expect(() => fn(Enum.FAILED)).toThrow(new Error('Not exhaustive'))
+    expect(() => fn(Enum.FAILED)).toThrow(new Error(ERROR))
   })
 })
 
@@ -159,7 +161,7 @@ describe('discriminating union', () => {
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
   })
 
-  test('get undefined', () => {
+  test('get fallback', () => {
     function fn<Data>(input: DiscriminatingUnion<Data>) {
       const result = match(input)
         .with({ type: Enum.PENDING }, (res) => {
@@ -174,9 +176,9 @@ describe('discriminating union', () => {
           expectType<undefined>(res.error)
           return res
         })
-        .get()
+        .get(FALLBACK)
 
-      expectType<DiscriminatingUnion<Data> | undefined>(result)
+      expectType<DiscriminatingUnion<Data> | typeof FALLBACK>(result)
       return result
     }
 
@@ -186,7 +188,7 @@ describe('discriminating union', () => {
 
     expect(fn(pending)).toBe(pending)
     expect(fn(ready)).toBe(ready)
-    expect(fn(failed)).toBe(undefined)
+    expect(fn(failed)).toBe(FALLBACK)
   })
 
   test('exhaustive', () => {
@@ -210,7 +212,7 @@ describe('discriminating union', () => {
           expectType<Error>(res.error)
           return res
         })
-        .exhaustive('Not exhaustive')
+        .exhaustive(ERROR)
 
       expectType<DiscriminatingUnion<Data>>(result)
       return result
@@ -225,7 +227,7 @@ describe('discriminating union', () => {
     expect(fn(failed)).toBe(failed)
 
     // @ts-expect-error
-    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error('Not exhaustive'))
+    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
   })
 
   test('not exhaustive', () => {
@@ -244,7 +246,7 @@ describe('discriminating union', () => {
           return res
         })
         // @ts-expect-error
-        .exhaustive('Not exhaustive')
+        .exhaustive(ERROR)
 
       expectType<DiscriminatingUnion<Data>>(result)
       return result
@@ -256,6 +258,6 @@ describe('discriminating union', () => {
 
     expect(fn(pending)).toBe(pending)
     expect(fn(ready)).toBe(ready)
-    expect(() => fn(failed)).toThrow(new Error('Not exhaustive'))
+    expect(() => fn(failed)).toThrow(new Error(ERROR))
   })
 })

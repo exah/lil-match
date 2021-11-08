@@ -8,7 +8,9 @@ interface Match<Input, Output = never> {
     callback: (value: Input extends P ? Input : never) => O,
   ): Match<Exclude<Input, P>, O | Output>
   exhaustive: [Input] extends [never] ? (errorMessage: string) => Output : never
-  get(): [Input] extends [never] ? Output : Output | undefined
+  get<FallbackValue = undefined>(
+    fallback?: FallbackValue,
+  ): [Input] extends [never] ? Output : Output | FallbackValue
 }
 
 export declare function match<Input, Output = never>(
