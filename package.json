@@ -10,6 +10,10 @@
   },
   "author": "John Grishin <r@exah.me>",
   "license": "ISC",
+  "files": [
+    "mod.js",
+    "mod.d.ts"
+  ],
   "size-limit": [
     {
       "path": "./mod.js",
