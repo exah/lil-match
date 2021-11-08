@@ -148,18 +148,18 @@ describe('enum', () => {
 
 describe('discriminating union', () => {
   const pending = {
-    type: Enum.PENDING as const,
-  }
+    type: Enum.PENDING,
+  } as const
 
   const ready = {
-    type: Enum.READY as const,
-    data: { type: 'number' as const, value: 100 },
-  }
+    type: Enum.READY,
+    data: { type: 'number', value: 100 },
+  } as const
 
   const failed = {
-    type: Enum.FAILED as const,
+    type: Enum.FAILED,
     error: new Error(),
-  }
+  } as const
 
   test('run', () => {
     function fn(input: DiscriminatingUnion) {
