@@ -1,22 +1,16 @@
-declare type Pattern<Input> = Input extends number
+declare type Pattern<Input> = Input extends string | number | boolean
   ? Input
-  : Input extends string
-  ? Input
-  : Input extends boolean
-  ? Input
-  : Input extends Array<infer Item>
-  ? Pattern<Item>[]
   : { [K in keyof Input]?: Pattern<Input[K]> }
 
-interface Match<Input, Output, Result = never> {
+interface Match<Input, Output = never> {
   with<P extends Pattern<Input>, O>(
     pattern: P,
     callback: (value: Input extends P ? Input : never) => O,
-  ): Match<Exclude<Input, P>, O, Output>
-  exhaustive: [Input] extends [never] ? () => Output | Result : never
-  run(): Output | Result | void
+  ): Match<Exclude<Input, P>, O | Output>
+  exhaustive: [Input] extends [never] ? (errorMessage: string) => Output : never
+  get(): [Input] extends [never] ? Output : Output | undefined
 }
 
-export declare function match<Input, Output, Result = never>(
+export declare function match<Input, Output = never>(
   input: Input,
-): Match<Input, Output, Result>
+): Match<Input, Output>

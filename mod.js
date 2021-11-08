@@ -21,11 +21,11 @@ export function match(input, output = UNKNOWN) {
     with(pattern, callback) {
       return match(input, compare(input, pattern) ? callback(input) : output)
     },
-    exhaustive() {
-      if (output === UNKNOWN) throw new Error('Not exhaustive')
+    exhaustive(message) {
+      if (output === UNKNOWN) throw new Error(message)
       return output
     },
-    run() {
+    get() {
       if (output === UNKNOWN) return
       return output
     },
