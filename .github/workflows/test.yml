@@ -1,0 +1,17 @@
+name: Test
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Test
+        run: npm t
+
+      - name: Size
+        run: npx size-limit
