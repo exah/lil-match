@@ -1,7 +1,7 @@
 const UNKNOWN = Symbol()
 
 function isObject(input) {
-  return input !== null && typeof input === 'object'
+  return input != null && typeof input === 'object'
 }
 
 function compare(input, pattern) {
@@ -25,8 +25,12 @@ export function match(input, output = UNKNOWN) {
       if (output === UNKNOWN) throw new Error(message)
       return output
     },
-    get(fallback) {
-      if (output === UNKNOWN) return fallback
+    otherwise(cb) {
+      if (output === UNKNOWN) return cb(input)
+      return output
+    },
+    run() {
+      if (output === UNKNOWN) return
       return output
     },
   }
