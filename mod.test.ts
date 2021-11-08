@@ -153,7 +153,7 @@ describe('discriminating union', () => {
 
   const ready = {
     type: Enum.READY,
-    data: { type: 'number', value: 100 },
+    data: { type: 'number', value: 0 },
   } as const
 
   const failed = {
@@ -326,29 +326,29 @@ describe('discriminating union', () => {
 
           return res
         })
-        .with({ type: Enum.READY, value: { type: 'number' } }, (res) => {
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
           expectType<Enum.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
-          return res
+          return res.data.type
         })
-        .with({ type: Enum.READY, value: { type: 'string' } }, (res) => {
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
           expectType<Enum.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
 
-          return res
+          return res.data.type
         })
-        .with({ type: Enum.READY, value: { type: 'boolean' } }, (res) => {
+        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
           expectType<Enum.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
           expectType<undefined>(res.error)
 
-          return res
+          return res.data.type
         })
         .run()
 
@@ -356,11 +356,25 @@ describe('discriminating union', () => {
       return result
     }
 
-    expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(ready)
-    expect(fn(failed)).toBe(failed)
+    expect(
+      fn({
+        type: Enum.READY,
+        data: { type: 'number', value: 0 },
+      }),
+    ).toBe('number')
 
-    // @ts-expect-error
-    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+    expect(
+      fn({
+        type: Enum.READY,
+        data: { type: 'string', value: 'value' },
+      }),
+    ).toBe('string')
+
+    expect(
+      fn({
+        type: Enum.READY,
+        data: { type: 'boolean', value: true },
+      }),
+    ).toBe('boolean')
   })
 })
