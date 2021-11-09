@@ -106,17 +106,17 @@ describe('enum', () => {
         })
         .with(Enum.FAILED, (res) => {
           expectType<Enum.FAILED>(res)
-          return res
+          return
         })
         .exhaustive(ERROR)
 
-      expectType<Enum>(result)
+      expectType<Enum | void>(result)
       return result
     }
 
     expect(fn(Enum.PENDING)).toBe(0)
     expect(fn(Enum.READY)).toBe(1)
-    expect(fn(Enum.FAILED)).toBe(2)
+    expect(fn(Enum.FAILED)).toBe(undefined)
 
     // @ts-expect-error
     expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
@@ -266,17 +266,17 @@ describe('discriminating union', () => {
           expectType<Enum.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error>(res.error)
-          return res
+          return
         })
         .exhaustive(ERROR)
 
-      expectType<DiscriminatingUnion>(result)
+      expectType<DiscriminatingUnion | void>(result)
       return result
     }
 
     expect(fn(pending)).toBe(pending)
     expect(fn(ready)).toBe(ready)
-    expect(fn(failed)).toBe(failed)
+    expect(fn(failed)).toBe(undefined)
 
     // @ts-expect-error
     expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))

@@ -1,4 +1,4 @@
-const UNKNOWN = Symbol()
+const UNKNOWN = []
 
 function isObject(input) {
   return input != null && typeof input === 'object'
@@ -19,7 +19,8 @@ function compare(input, pattern) {
 export function match(input, output = UNKNOWN) {
   return {
     with(pattern, callback) {
-      return match(input, compare(input, pattern) ? callback(input) : output)
+      if (compare(input, pattern)) output = callback(input)
+      return this
     },
     exhaustive(message) {
       if (output === UNKNOWN) throw new Error(message)
