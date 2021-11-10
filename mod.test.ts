@@ -312,20 +312,6 @@ describe('discriminating union', () => {
   test('nested', () => {
     function fn(input: DiscriminatingUnion) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
-          expectType<undefined>(res.data)
-          expectType<undefined>(res.error)
-
-          return res
-        })
-        .with({ type: Enum.FAILED }, (res) => {
-          expectType<Enum.FAILED>(res.type)
-          expectType<Data | undefined>(res.data)
-          expectType<Error>(res.error)
-
-          return res
-        })
         .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
           expectType<Enum.READY>(res.type)
           expectType<'number'>(res.data.type)
@@ -350,9 +336,14 @@ describe('discriminating union', () => {
 
           return res.data.type
         })
-        .run()
+        .otherwise((res) => {
+          expectType<Enum.PENDING | Enum.FAILED>(res.type)
+          expectType<undefined>(res.data)
+          expectType<Error | undefined>(res.error)
+          return null
+        })
 
-      expectType<DiscriminatingUnion>(result)
+      expectType<'number' | 'string' | 'boolean' | null>(result)
       return result
     }
 
@@ -366,7 +357,7 @@ describe('discriminating union', () => {
     expect(
       fn({
         type: Enum.READY,
-        data: { type: 'string', value: 'value' },
+        data: { type: 'string', value: '' },
       }),
     ).toBe('string')
 
