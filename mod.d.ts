@@ -16,7 +16,6 @@ declare type IsPlainObject<T> = T extends object
     : true
   : false
 
-
 declare type OmitMatch<T> = Pick<
   T,
   { [K in keyof T]: T[K] extends MATCH ? K : never }[keyof T]
@@ -43,18 +42,16 @@ declare type Pattern<Input> = Input extends Primitives
   ? { [K in keyof Input]?: Pattern<Input[K]> }
   : never
 
-declare interface Match<Input, Output = never> {
+declare interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, R = DeepExtract<Input, P>>(
     pattern: P,
     callback: (result: R) => O,
-  ): Match<Exclude<Input, P>, O | Output>
-  run(): [Input] extends [never] ? Output : Output | undefined
-  otherwise: [Input] extends [never]
+  ): Match<Input, Exclude<Next, P>, O | Output>
+  run(): [Next] extends [never] ? Output : Output | undefined
+  otherwise: [Next] extends [never]
     ? never
-    : <Fallback>(cb: (result: Input) => Fallback) => Output | Fallback
-  exhaustive: [Input] extends [never] ? (errorMessage: string) => Output : never
+    : <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
+  exhaustive: [Next] extends [never] ? (errorMessage: string) => Output : never
 }
 
-export declare function match<Input, Output = never>(
-  input: Input,
-): Match<Input, Output>
+export declare function match<Input>(input: Input): Match<Input>
