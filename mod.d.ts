@@ -1,33 +1,5 @@
-declare const UNKNOWN: unique symbol
-declare type UNKNOWN = typeof UNKNOWN
-
-declare type DeepPartial<T> = {
-  [K in keyof T]?: DeepPartial<T[K]>
-}
-
-declare type OmitUnknown<T> = Pick<
-  T,
-  { [K in keyof T]: T[K] extends UNKNOWN ? K : never }[keyof T]
->
-
-declare type NonEmpty<T> = {} extends T ? never : T
-declare type OmitValue<T> = Exclude<T, NonEmpty<OmitUnknown<T>>>
-
-declare type DeepExtract<
-  A,
-  B extends DeepPartial<A>,
-  N = never,
-> = A extends object
-  ? B extends object
-    ? OmitValue<{
-        [K in keyof A]: K extends keyof B
-          ? DeepExtract<A[K], B[K], UNKNOWN>
-          : A[K]
-      }>
-    : UNKNOWN
-  : A extends B
-  ? A
-  : N
+declare const MATCH: unique symbol
+declare type MATCH = typeof MATCH
 
 declare type Primitives =
   | number
@@ -38,14 +10,43 @@ declare type Primitives =
   | undefined
   | null
 
+declare type IsPlainObject<T> = T extends object
+  ? T extends Primitives
+    ? false
+    : true
+  : false
+
+
+declare type OmitMatch<T> = Pick<
+  T,
+  { [K in keyof T]: T[K] extends MATCH ? K : never }[keyof T]
+>
+
+declare type NonEmpty<T> = {} extends T ? never : T
+declare type OmitValue<T> = Exclude<T, NonEmpty<OmitMatch<T>>>
+
+declare type DeepExtract<A, B, N = never> = A extends object
+  ? B extends object
+    ? OmitValue<{
+        [K in keyof A]: K extends keyof B
+          ? DeepExtract<A[K], B[K], MATCH>
+          : A[K]
+      }>
+    : N
+  : A extends B
+  ? A
+  : N
+
 declare type Pattern<Input> = Input extends Primitives
   ? Input
-  : { readonly [K in keyof Input]?: Pattern<Input[K]> }
+  : IsPlainObject<Input> extends true
+  ? { [K in keyof Input]?: Pattern<Input[K]> }
+  : never
 
-interface Match<Input, Output = never> {
-  with<P extends Pattern<Input>, O>(
+declare interface Match<Input, Output = never> {
+  with<P extends Pattern<Input>, O, R = DeepExtract<Input, P>>(
     pattern: P,
-    callback: (result: DeepExtract<Input, P>) => O,
+    callback: (result: R) => O,
   ): Match<Exclude<Input, P>, O | Output>
   run(): [Input] extends [never] ? Output : Output | undefined
   otherwise: [Input] extends [never]
