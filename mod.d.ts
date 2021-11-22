@@ -56,6 +56,8 @@ declare type DeepExclude<A, B, N = never> = A extends object
   ? N
   : A
 
+declare interface NonExhaustive<_> {}
+
 declare interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, R = DeepExtract<Input, P>>(
     pattern: P,
@@ -65,7 +67,9 @@ declare interface Match<Input, Next = Input, Output = never> {
   otherwise: [Next] extends [never]
     ? never
     : <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
-  exhaustive: [Next] extends [never] ? (errorMessage: string) => Output : never
+  exhaustive: [Next] extends [never]
+    ? (errorMessage: string) => Output
+    : NonExhaustive<Next>
 }
 
 export declare function match<Input>(input: Input): Match<Input>
