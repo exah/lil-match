@@ -4,7 +4,7 @@ import { match } from '.'
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
 
-enum Enum {
+enum Type {
   PENDING,
   READY,
   FAILED,
@@ -15,176 +15,176 @@ type Data =
   | { type: 'string'; value: string }
   | { type: 'boolean'; value: boolean }
 
-type DiscriminatingUnion =
-  | { type: Enum.PENDING; data?: never; error?: never }
-  | { type: Enum.READY; data: Data; error?: never }
-  | { type: Enum.FAILED; data?: Data; error: Error }
+type Result =
+  | { type: Type.PENDING; data?: never; error?: never }
+  | { type: Type.READY; data: Data; error?: never }
+  | { type: Type.FAILED; data?: Data; error: Error }
 
 describe('enum', () => {
   test('run', () => {
-    function fn(input: Enum) {
+    function fn(input: Type) {
       const result = match(input)
-        .with(Enum.PENDING, (res) => {
-          expectType<Enum.PENDING>(res)
+        .with(Type.PENDING, (res) => {
+          expectType<Type.PENDING>(res)
           return res
         })
-        .with(Enum.READY, (res) => {
-          expectType<Enum.READY>(res)
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
           return res
         })
-        .with(Enum.FAILED, (res) => {
-          expectType<Enum.FAILED>(res)
+        .with(Type.FAILED, (res) => {
+          expectType<Type.FAILED>(res)
           return res
         })
         .run()
 
-      expectType<Enum>(result)
+      expectType<Type>(result)
       return result
     }
 
-    expect(fn(Enum.PENDING)).toBe(0)
-    expect(fn(Enum.READY)).toBe(1)
-    expect(fn(Enum.FAILED)).toBe(2)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(2)
 
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
   })
 
   test('undefined on unhandled', () => {
-    function fn(input: Enum) {
+    function fn(input: Type) {
       const result = match(input)
-        .with(Enum.PENDING, (res) => {
-          expectType<Enum.PENDING>(res)
+        .with(Type.PENDING, (res) => {
+          expectType<Type.PENDING>(res)
           return res
         })
-        .with(Enum.READY, (res) => {
-          expectType<Enum.READY>(res)
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
           return res
         })
         .run()
 
-      expectType<Enum | undefined>(result)
+      expectType<Type | undefined>(result)
       return result
     }
 
-    expect(fn(Enum.PENDING)).toBe(0)
-    expect(fn(Enum.READY)).toBe(1)
-    expect(fn(Enum.FAILED)).toBe(undefined)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(undefined)
   })
 
   test('otherwise', () => {
-    function fn(input: Enum) {
+    function fn(input: Type) {
       const result = match(input)
-        .with(Enum.PENDING, (res) => {
-          expectType<Enum.PENDING>(res)
+        .with(Type.PENDING, (res) => {
+          expectType<Type.PENDING>(res)
           return res
         })
         .otherwise((res) => {
-          expectType<Enum.READY | Enum.FAILED>(res)
+          expectType<Type.READY | Type.FAILED>(res)
           return null
         })
 
-      expectType<Enum.PENDING | null>(result)
+      expectType<Type.PENDING | null>(result)
       return result
     }
 
-    expect(fn(Enum.PENDING)).toBe(0)
-    expect(fn(Enum.READY)).toBe(null)
-    expect(fn(Enum.FAILED)).toBe(null)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(null)
+    expect(fn(Type.FAILED)).toBe(null)
   })
 
   test('exhaustive', () => {
-    function fn(input: Enum) {
+    function fn(input: Type) {
       const result = match(input)
-        .with(Enum.PENDING, (res) => {
-          expectType<Enum.PENDING>(res)
+        .with(Type.PENDING, (res) => {
+          expectType<Type.PENDING>(res)
           return res
         })
-        .with(Enum.READY, (res) => {
-          expectType<Enum.READY>(res)
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
           return res
         })
-        .with(Enum.FAILED, (res) => {
-          expectType<Enum.FAILED>(res)
+        .with(Type.FAILED, (res) => {
+          expectType<Type.FAILED>(res)
           return
         })
         .exhaustive(ERROR)
 
-      expectType<Enum | void>(result)
+      expectType<Type | void>(result)
       return result
     }
 
-    expect(fn(Enum.PENDING)).toBe(0)
-    expect(fn(Enum.READY)).toBe(1)
-    expect(fn(Enum.FAILED)).toBe(undefined)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(undefined)
 
     // @ts-expect-error
     expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
   })
 
   test('not exhaustive', () => {
-    function fn(input: Enum) {
+    function fn(input: Type) {
       const result = match(input)
-        .with(Enum.PENDING, (res) => {
-          expectType<Enum.PENDING>(res)
+        .with(Type.PENDING, (res) => {
+          expectType<Type.PENDING>(res)
           return res
         })
-        .with(Enum.READY, (res) => {
-          expectType<Enum.READY>(res)
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
           return res
         })
         // @ts-expect-error
         .exhaustive(ERROR)
 
-      expectType<Enum>(result)
+      expectType<Type>(result)
       return result
     }
 
-    expect(fn(Enum.PENDING)).toBe(0)
-    expect(fn(Enum.READY)).toBe(1)
-    expect(() => fn(Enum.FAILED)).toThrow(new Error(ERROR))
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(() => fn(Type.FAILED)).toThrow(new Error(ERROR))
   })
 })
 
-describe('discriminating union', () => {
+describe('union', () => {
   const pending = {
-    type: Enum.PENDING,
+    type: Type.PENDING,
   } as const
 
   const ready = {
-    type: Enum.READY,
+    type: Type.READY,
     data: { type: 'number', value: 0 },
   } as const
 
   const failed = {
-    type: Enum.FAILED,
+    type: Type.FAILED,
     error: new Error(),
   } as const
 
   test('run', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.READY }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<Data>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.FAILED }, (res) => {
-          expectType<Enum.FAILED>(res.type)
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error>(res.error)
           return res
         })
         .run()
 
-      expectType<DiscriminatingUnion>(result)
+      expectType<Result>(result)
       return result
     }
 
@@ -197,23 +197,23 @@ describe('discriminating union', () => {
   })
 
   test('undefined on unhandled', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.READY }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<Data>(res.data)
           expectType<undefined>(res.error)
           return res
         })
         .run()
 
-      expectType<DiscriminatingUnion | undefined>(result)
+      expectType<Result | undefined>(result)
       return result
     }
 
@@ -223,22 +223,22 @@ describe('discriminating union', () => {
   })
 
   test('otherwise', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
           return res
         })
         .otherwise((res) => {
-          expectType<Enum.READY | Enum.FAILED>(res.type)
+          expectType<Type.READY | Type.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error | undefined>(res.error)
           return null
         })
 
-      expectType<DiscriminatingUnion | null>(result)
+      expectType<Result | null>(result)
       return result
     }
 
@@ -248,29 +248,29 @@ describe('discriminating union', () => {
   })
 
   test('exhaustive', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.READY }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<Data>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.FAILED }, (res) => {
-          expectType<Enum.FAILED>(res.type)
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error>(res.error)
           return
         })
         .exhaustive(ERROR)
 
-      expectType<DiscriminatingUnion | void>(result)
+      expectType<Result | void>(result)
       return result
     }
 
@@ -283,16 +283,16 @@ describe('discriminating union', () => {
   })
 
   test('not exhaustive', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
           return res
         })
-        .with({ type: Enum.READY }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<Data>(res.data)
           expectType<undefined>(res.error)
           return res
@@ -300,7 +300,7 @@ describe('discriminating union', () => {
         // @ts-expect-error
         .exhaustive(ERROR)
 
-      expectType<DiscriminatingUnion>(result)
+      expectType<Result>(result)
       return result
     }
 
@@ -310,67 +310,67 @@ describe('discriminating union', () => {
   })
 })
 
-describe('nested', () => {
+describe('nested union', () => {
   const number = {
-    type: Enum.READY,
+    type: Type.READY,
     data: { type: 'number', value: 0 },
   } as const
 
   const string = {
-    type: Enum.READY,
+    type: Type.READY,
     data: { type: 'string', value: '' },
   } as const
 
   const boolean = {
-    type: Enum.READY,
+    type: Type.READY,
     data: { type: 'boolean', value: true },
   } as const
 
   const pending = {
-    type: Enum.PENDING,
+    type: Type.PENDING,
   } as const
 
   const failed = {
-    type: Enum.FAILED,
+    type: Type.FAILED,
     error: new Error(),
   } as const
 
   test('run', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'number' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
 
           return null
         })
-        .with({ type: Enum.FAILED }, (res) => {
-          expectType<Enum.FAILED>(res.type)
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error>(res.error)
 
@@ -393,18 +393,18 @@ describe('nested', () => {
   })
 
   test('undefined on unhandled', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'number' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
@@ -428,26 +428,26 @@ describe('nested', () => {
   })
 
   test('otherwise', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'number' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
           expectType<undefined>(res.error)
@@ -455,7 +455,7 @@ describe('nested', () => {
           return res.data.type
         })
         .otherwise((res) => {
-          expectType<Enum.PENDING | Enum.FAILED>(res.type)
+          expectType<Type.PENDING | Type.FAILED>(res.type)
           expectType<undefined>(res.data)
           expectType<Error | undefined>(res.error)
           return null
@@ -476,41 +476,41 @@ describe('nested', () => {
   })
 
   test('exhaustive', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'number' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.PENDING }, (res) => {
-          expectType<Enum.PENDING>(res.type)
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
           expectType<undefined>(res.error)
 
           return null
         })
-        .with({ type: Enum.FAILED }, (res) => {
-          expectType<Enum.FAILED>(res.type)
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
           expectType<Data | undefined>(res.data)
           expectType<Error>(res.error)
 
@@ -533,18 +533,18 @@ describe('nested', () => {
   })
 
   test('not exhaustive', () => {
-    function fn(input: DiscriminatingUnion) {
+    function fn(input: Result) {
       const result = match(input)
-        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'number' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
           expectType<undefined>(res.error)
 
           return res.data.type
         })
-        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
-          expectType<Enum.READY>(res.type)
+        .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
           expectType<undefined>(res.error)
