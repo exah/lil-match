@@ -153,7 +153,7 @@ describe('discriminating union', () => {
 
   const ready = {
     type: Enum.READY,
-    data: { type: 'number', value: 100 },
+    data: { type: 'number', value: 0 },
   } as const
 
   const failed = {
@@ -306,6 +306,262 @@ describe('discriminating union', () => {
 
     expect(fn(pending)).toBe(pending)
     expect(fn(ready)).toBe(ready)
+    expect(() => fn(failed)).toThrow(new Error(ERROR))
+  })
+})
+
+describe('nested', () => {
+  const number = {
+    type: Enum.READY,
+    data: { type: 'number', value: 0 },
+  } as const
+
+  const string = {
+    type: Enum.READY,
+    data: { type: 'string', value: '' },
+  } as const
+
+  const boolean = {
+    type: Enum.READY,
+    data: { type: 'boolean', value: true },
+  } as const
+
+  const pending = {
+    type: Enum.PENDING,
+  } as const
+
+  const failed = {
+    type: Enum.FAILED,
+    error: new Error(),
+  } as const
+
+  test('run', () => {
+    function fn(input: DiscriminatingUnion) {
+      const result = match(input)
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.PENDING }, (res) => {
+          expectType<Enum.PENDING>(res.type)
+          expectType<undefined>(res.data)
+          expectType<undefined>(res.error)
+
+          return null
+        })
+        .with({ type: Enum.FAILED }, (res) => {
+          expectType<Enum.FAILED>(res.type)
+          expectType<Data | undefined>(res.data)
+          expectType<Error>(res.error)
+
+          return null
+        })
+        .run()
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+
+  test('undefined on unhandled', () => {
+    function fn(input: DiscriminatingUnion) {
+      const result = match(input)
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .run()
+
+      expectType<'number' | 'string' | undefined>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe(undefined)
+    expect(fn(pending)).toBe(undefined)
+    expect(fn(failed)).toBe(undefined)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+
+  test('otherwise', () => {
+    function fn(input: DiscriminatingUnion) {
+      const result = match(input)
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .otherwise((res) => {
+          expectType<Enum.PENDING | Enum.FAILED>(res.type)
+          expectType<undefined>(res.data)
+          expectType<Error | undefined>(res.error)
+          return null
+        })
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(null)
+  })
+
+  test('exhaustive', () => {
+    function fn(input: DiscriminatingUnion) {
+      const result = match(input)
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'boolean' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.PENDING }, (res) => {
+          expectType<Enum.PENDING>(res.type)
+          expectType<undefined>(res.data)
+          expectType<undefined>(res.error)
+
+          return null
+        })
+        .with({ type: Enum.FAILED }, (res) => {
+          expectType<Enum.FAILED>(res.type)
+          expectType<Data | undefined>(res.data)
+          expectType<Error>(res.error)
+
+          return null
+        })
+        .exhaustive(ERROR)
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
+  })
+
+  test('not exhaustive', () => {
+    function fn(input: DiscriminatingUnion) {
+      const result = match(input)
+        .with({ type: Enum.READY, data: { type: 'number' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Enum.READY, data: { type: 'string' } }, (res) => {
+          expectType<Enum.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        // @ts-expect-error
+        .exhaustive(ERROR)
+
+      expectType<'number' | 'string' | undefined>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(() => fn(boolean)).toThrow(new Error(ERROR))
+    expect(() => fn(pending)).toThrow(new Error(ERROR))
     expect(() => fn(failed)).toThrow(new Error(ERROR))
   })
 })
