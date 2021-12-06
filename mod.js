@@ -5,6 +5,12 @@ function isObject(input) {
 }
 
 function compare(input, pattern) {
+  if (pattern === Boolean) return typeof input === 'boolean'
+  if (pattern === String) return typeof input === 'string'
+  if (pattern === Number) return typeof input === 'number'
+  if (pattern === Symbol) return typeof input === 'symbol'
+  if (pattern === BigInt) return typeof input === 'bigint'
+
   if (isObject(pattern)) {
     return isObject(input)
       ? Object.keys(pattern).every(function (key) {

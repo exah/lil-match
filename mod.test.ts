@@ -20,6 +20,30 @@ type Result =
   | { type: Type.READY; data: Data; error?: never }
   | { type: Type.FAILED; data?: Data; error: Error }
 
+const number = {
+  type: Type.READY,
+  data: { type: 'number', value: 0 },
+} as const
+
+const string = {
+  type: Type.READY,
+  data: { type: 'string', value: '' },
+} as const
+
+const boolean = {
+  type: Type.READY,
+  data: { type: 'boolean', value: true },
+} as const
+
+const pending = {
+  type: Type.PENDING,
+} as const
+
+const failed = {
+  type: Type.FAILED,
+  error: new Error(),
+} as const
+
 describe('enum', () => {
   test('run', () => {
     function fn(input: Type) {
@@ -147,20 +171,6 @@ describe('enum', () => {
 })
 
 describe('union', () => {
-  const pending = {
-    type: Type.PENDING,
-  } as const
-
-  const ready = {
-    type: Type.READY,
-    data: { type: 'number', value: 0 },
-  } as const
-
-  const failed = {
-    type: Type.FAILED,
-    error: new Error(),
-  } as const
-
   test('run', () => {
     function fn(input: Result) {
       const result = match(input)
@@ -189,7 +199,7 @@ describe('union', () => {
     }
 
     expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(ready)
+    expect(fn(number)).toBe(number)
     expect(fn(failed)).toBe(failed)
 
     // @ts-expect-error
@@ -218,7 +228,9 @@ describe('union', () => {
     }
 
     expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(ready)
+    expect(fn(number)).toBe(number)
+    expect(fn(string)).toBe(string)
+    expect(fn(boolean)).toBe(boolean)
     expect(fn(failed)).toBe(undefined)
   })
 
@@ -243,7 +255,9 @@ describe('union', () => {
     }
 
     expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(null)
+    expect(fn(number)).toBe(null)
+    expect(fn(string)).toBe(null)
+    expect(fn(boolean)).toBe(null)
     expect(fn(failed)).toBe(null)
   })
 
@@ -275,7 +289,9 @@ describe('union', () => {
     }
 
     expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(ready)
+    expect(fn(number)).toBe(number)
+    expect(fn(string)).toBe(string)
+    expect(fn(boolean)).toBe(boolean)
     expect(fn(failed)).toBe(undefined)
 
     // @ts-expect-error
@@ -305,36 +321,14 @@ describe('union', () => {
     }
 
     expect(fn(pending)).toBe(pending)
-    expect(fn(ready)).toBe(ready)
+    expect(fn(number)).toBe(number)
+    expect(fn(string)).toBe(string)
+    expect(fn(boolean)).toBe(boolean)
     expect(() => fn(failed)).toThrow(new Error(ERROR))
   })
 })
 
 describe('nested union', () => {
-  const number = {
-    type: Type.READY,
-    data: { type: 'number', value: 0 },
-  } as const
-
-  const string = {
-    type: Type.READY,
-    data: { type: 'string', value: '' },
-  } as const
-
-  const boolean = {
-    type: Type.READY,
-    data: { type: 'boolean', value: true },
-  } as const
-
-  const pending = {
-    type: Type.PENDING,
-  } as const
-
-  const failed = {
-    type: Type.FAILED,
-    error: new Error(),
-  } as const
-
   test('run', () => {
     function fn(input: Result) {
       const result = match(input)
@@ -544,6 +538,238 @@ describe('nested union', () => {
           return res.data.type
         })
         .with({ type: Type.READY, data: { type: 'string' } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        // @ts-expect-error
+        .exhaustive(ERROR)
+
+      expectType<'number' | 'string' | undefined>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(() => fn(boolean)).toThrow(new Error(ERROR))
+    expect(() => fn(pending)).toThrow(new Error(ERROR))
+    expect(() => fn(failed)).toThrow(new Error(ERROR))
+  })
+})
+
+describe('match constructor', () => {
+  test('run', () => {
+    function fn(input: Result) {
+      const result = match(input)
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
+          expectType<undefined>(res.data)
+          expectType<undefined>(res.error)
+
+          return null
+        })
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
+          expectType<Data | undefined>(res.data)
+          expectType<Error>(res.error)
+
+          return null
+        })
+        .run()
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+
+  test('undefined on unhandled', () => {
+    function fn(input: Result) {
+      const result = match(input)
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .run()
+
+      expectType<'number' | 'string' | undefined>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe(undefined)
+    expect(fn(pending)).toBe(undefined)
+    expect(fn(failed)).toBe(undefined)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+
+  test('otherwise', () => {
+    function fn(input: Result) {
+      const result = match(input)
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .otherwise((res) => {
+          expectType<Type.PENDING | Type.FAILED>(res.type)
+          expectType<undefined>(res.data)
+          expectType<Error | undefined>(res.error)
+          return null
+        })
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(null)
+  })
+
+  test('exhaustive', () => {
+    function fn(input: Result) {
+      const result = match(input)
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'string'>(res.data.type)
+          expectType<string>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'boolean'>(res.data.type)
+          expectType<boolean>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.PENDING }, (res) => {
+          expectType<Type.PENDING>(res.type)
+          expectType<undefined>(res.data)
+          expectType<undefined>(res.error)
+
+          return null
+        })
+        .with({ type: Type.FAILED }, (res) => {
+          expectType<Type.FAILED>(res.type)
+          expectType<Data | undefined>(res.data)
+          expectType<Error>(res.error)
+
+          return null
+        })
+        .exhaustive(ERROR)
+
+      expectType<'number' | 'string' | 'boolean' | null>(result)
+      return result
+    }
+
+    expect(fn(number)).toBe('number')
+    expect(fn(string)).toBe('string')
+    expect(fn(boolean)).toBe('boolean')
+    expect(fn(pending)).toBe(null)
+    expect(fn(failed)).toBe(null)
+
+    // @ts-expect-error
+    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
+  })
+
+  test('not exhaustive', () => {
+    function fn(input: Result) {
+      const result = match(input)
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'number'>(res.data.type)
+          expectType<number>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)

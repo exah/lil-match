@@ -19,7 +19,7 @@
     {
       "path": "./mod.js",
       "import": "{ match }",
-      "limit": "200B"
+      "limit": "255B"
     }
   ],
   "jest": {

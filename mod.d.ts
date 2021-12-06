@@ -36,10 +36,36 @@ declare type DeepExtract<A, B, N = never> = A extends object
   ? A
   : N
 
-declare type Pattern<Input> = Input extends Primitives
+declare type Pattern<Input> = Input extends number
+  ? Input | NumberConstructor
+  : Input extends string
+  ? Input | StringConstructor
+  : Input extends boolean
+  ? Input | BooleanConstructor
+  : Input extends symbol
+  ? Input | SymbolConstructor
+  : Input extends bigint
+  ? Input | BigIntConstructor
+  : Input extends Primitives
   ? Input
   : IsPlainObject<Input> extends true
   ? { [K in keyof Input]?: Pattern<Input[K]> }
+  : never
+
+declare type Invert<Pattern> = Pattern extends NumberConstructor
+  ? number
+  : Pattern extends StringConstructor
+  ? string
+  : Pattern extends BooleanConstructor
+  ? boolean
+  : Pattern extends SymbolConstructor
+  ? symbol
+  : Pattern extends BigIntConstructor
+  ? bigint
+  : Pattern extends Primitives
+  ? Pattern
+  : IsPlainObject<Pattern> extends true
+  ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
 
 declare type DeepExclude<A, B, N = never> = A extends object
@@ -59,10 +85,10 @@ declare type DeepExclude<A, B, N = never> = A extends object
 declare interface NonExhaustive<_> {}
 
 declare interface Match<Input, Next = Input, Output = never> {
-  with<P extends Pattern<Input>, O, R = DeepExtract<Input, P>>(
+  with<P extends Pattern<Input>, O>(
     pattern: P,
-    callback: (result: R) => O,
-  ): Match<Input, DeepExclude<Next, P>, O | Output>
+    callback: (result: DeepExtract<Input, Invert<P>>) => O,
+  ): Match<Input, DeepExclude<Next, Invert<P>>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
   otherwise: [Next] extends [never]
     ? never
