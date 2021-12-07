@@ -39,7 +39,7 @@ let output: string = match(input)
 
 ### `match(input)`
 
-Returns an object based on `input` with methods for chaining. Use [`.with`](#withpattern-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwise), [`.run`](#run), or [`.exhaustive`](#exhaustive) methods.
+Returns an object based on `input` with methods for chaining. Use [`.with`](#withpattern-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
 
 #### Params
 
@@ -48,9 +48,9 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 #### Returns object
 
 - [`.with`](#withpattern-callbackmatch)
-- [`.otherwise`](#otherwise)
+- [`.otherwise`](#otherwisecallbackunmatched)
 - [`.run`](#run)
-- [`.exhaustive`](#exhaustive)
+- [`.exhaustive`](#exhaustiveerrormessage)
 
 #### Examples
 
@@ -78,9 +78,9 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 #### Returns object
 
 - [`.with`](#withpattern-callbackmatch)
-- [`.otherwise`](#otherwise)
+- [`.otherwise`](#otherwisecallbackunmatched)
 - [`.run`](#run)
-- [`.exhaustive`](#exhaustive)
+- [`.exhaustive`](#exhaustiveerrormessage)
 
 #### Examples
 
