@@ -11,6 +11,17 @@
   "repository": "exah/lil-match",
   "author": "John Grishin <r@exah.me>",
   "license": "MIT",
+  "keywords": [
+    "pattern",
+    "matching",
+    "typescript",
+    "tiny",
+    "small",
+    "nano",
+    "little",
+    "lil",
+    "match"
+  ],
   "files": [
     "mod.js",
     "mod.d.ts"
