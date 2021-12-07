@@ -10,7 +10,7 @@
   },
   "repository": "exah/lil-match",
   "author": "John Grishin <r@exah.me>",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "mod.js",
     "mod.d.ts"
