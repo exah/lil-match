@@ -1,7 +1,6 @@
-let UNKNOWN = []
+const UNKNOWN = []
 
 const isObject = (input) => input != null && typeof input === 'object'
-
 const compare = (input) => (pattern) => {
   if (pattern === Boolean) return typeof input === 'boolean'
   if (pattern === String) return typeof input === 'string'
@@ -21,7 +20,7 @@ const compare = (input) => (pattern) => {
 
 export const match = (input, output = UNKNOWN) => ({
   with(...patterns) {
-    let callback = patterns.pop()
+    const callback = patterns.pop()
     if (patterns.some(compare(input))) output = callback(input)
     return this
   },
