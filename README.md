@@ -45,7 +45,8 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 
 #### Params
 
-- `input` — a value you'll be testing
+- `input`
+  - a value you'll be testing
 
 #### Returns object
 
@@ -72,10 +73,10 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 #### Params
 
 - `pattern`
-- can be an object, literal value, primitive, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors
+  - can be an object, literal value, primitive, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors
 - `callback(match)`
-- access matched value
-- returned value will be used for the output type of end of [`match`](#matchinput) chain
+  - access matched value
+  - returned value will be used for the output type of end of [`match`](#matchinput) chain
 
 #### Returns object
 
@@ -190,8 +191,8 @@ Use the `exhaustive` method to enforce matching in every possible case. If [`mat
 #### Params
 
 - `errorMessage`
-- the message of `Error` which will be thrown in case of an unhandled case
-- ideally, the error should never throw, but it's useful to catch cases not typed yet immediately
+  - the message of `Error` which will be thrown in case of an unhandled case
+  - ideally, the error should never throw, but it's useful to catch cases not typed yet immediately
 
 #### Returns
 
