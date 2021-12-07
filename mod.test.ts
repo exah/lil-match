@@ -4,6 +4,9 @@ import { match } from '.'
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
 
+const LITERAL = 'LITERAL'
+type LITERAL = typeof LITERAL
+
 enum Type {
   PENDING,
   READY,
@@ -789,5 +792,124 @@ describe('match constructor', () => {
     expect(() => fn(boolean)).toThrow(new Error(ERROR))
     expect(() => fn(pending)).toThrow(new Error(ERROR))
     expect(() => fn(failed)).toThrow(new Error(ERROR))
+  })
+})
+
+describe('multi pattern', () => {
+  test('run', () => {
+    function fn(input: Type) {
+      const result = match(input)
+        .with(Type.PENDING, Type.FAILED, (res) => {
+          expectType<Type.PENDING | Type.FAILED>(res)
+          return res
+        })
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
+          return res
+        })
+        .run()
+
+      expectType<Type>(result)
+      return result
+    }
+
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(2)
+
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+
+  test('undefined on unhandled', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(Type.PENDING, Type.READY, (res) => {
+          expectType<Type.PENDING | Type.READY>(res)
+          return res
+        })
+        .run()
+
+      expectType<Type | undefined>(result)
+      return result
+    }
+
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(undefined)
+  })
+
+  test('otherwise', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(LITERAL, Type.PENDING, (res) => {
+          expectType<LITERAL | Type.PENDING>(res)
+          return res
+        })
+        .otherwise((res) => {
+          expectType<Type.READY | Type.FAILED>(res)
+          return null
+        })
+
+      expectType<LITERAL | Type.PENDING | null>(result)
+      return result
+    }
+
+    expect(fn(LITERAL)).toBe(LITERAL)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(null)
+    expect(fn(Type.FAILED)).toBe(null)
+  })
+
+  test('exhaustive', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(LITERAL, Type.PENDING, (res) => {
+          expectType<LITERAL | Type.PENDING>(res)
+          return res
+        })
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
+          return res
+        })
+        .with(Type.FAILED, (res) => {
+          expectType<Type.FAILED>(res)
+          return
+        })
+        .exhaustive(ERROR)
+
+      expectType<LITERAL | Type | void>(result)
+      return result
+    }
+
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(undefined)
+
+    // @ts-expect-error
+    expect(() => fn(NOT_EXHAUSTIVE)).toThrow(new Error(ERROR))
+  })
+
+  test('not exhaustive', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(LITERAL, Type.PENDING, (res) => {
+          expectType<LITERAL | Type.PENDING>(res)
+          return res
+        })
+        .with(Type.READY, (res) => {
+          expectType<Type.READY>(res)
+          return res
+        })
+        // @ts-expect-error
+        .exhaustive(ERROR)
+
+      expectType<LITERAL | Type>(result)
+      return result
+    }
+
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(() => fn(Type.FAILED)).toThrow(new Error(ERROR))
   })
 })

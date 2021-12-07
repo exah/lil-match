@@ -87,6 +87,9 @@ declare interface Match<Input, Next = Input, Output = never> {
     pattern: P,
     callback: (result: R) => O,
   ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
+  with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
+    ...args: [...patterns: P[], callback: (result: R) => O]
+  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
   otherwise: [Next] extends [never]
     ? never
