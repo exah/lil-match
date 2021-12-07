@@ -13,11 +13,12 @@ function compare(input) {
     if (pattern === BigInt) return typeof input === 'bigint'
 
     if (isObject(pattern)) {
-      return isObject(input)
-        ? Object.keys(pattern).every(function (key) {
-            return compare(input[key])(pattern[key])
-          })
-        : false
+      return (
+        isObject(input) &&
+        Object.keys(pattern).every(function (key) {
+          return compare(input[key])(pattern[key])
+        })
+      )
     }
 
     return Object.is(input, pattern)
