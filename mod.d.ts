@@ -69,9 +69,7 @@ declare type Invert<Pattern> = Pattern extends NumberConstructor
   : never
 
 declare type DeepExclude<A, B, N = never> = A extends object
-  ? A extends string
-    ? N
-    : B extends object
+  ? B extends object
     ? OmitValue<{
         [K in keyof A]: K extends keyof B
           ? DeepExclude<A[K], B[K], TOKEN>
@@ -85,10 +83,10 @@ declare type DeepExclude<A, B, N = never> = A extends object
 declare interface NonExhaustive<_> {}
 
 declare interface Match<Input, Next = Input, Output = never> {
-  with<P extends Pattern<Input>, O>(
+  with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
-    callback: (result: DeepExtract<Input, Invert<P>>) => O,
-  ): Match<Input, DeepExclude<Next, Invert<P>>, O | Output>
+    callback: (result: R) => O,
+  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
   otherwise: [Next] extends [never]
     ? never
