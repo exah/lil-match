@@ -73,7 +73,7 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 - can be an object, literal value, primitive, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors
 - `callback(match)`
 - access matched value
-- returned value will be used for output type of end of [`match`](#matchinput) chain
+- returned value will be used for the output type of end of [`match`](#matchinput) chain
 
 #### Returns object
 
@@ -277,7 +277,7 @@ let output: 'something' | 'nothing' = match(input)
 
 The difference is mostly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny footprint of the library means more understandable code, simpler types, and almost no effect on your app bundle size.
 
-If your project requires advanced pattern matching requires, please have a look at amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) by [@gvergnaud](https://github.com/gvergnaud).
+If your project requires advanced pattern matching features, please have a look at amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) by [@gvergnaud](https://github.com/gvergnaud).
 
 ## 🙏 Acknowledgments
 
