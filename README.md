@@ -1,4 +1,6 @@
-<h1 align="center"><img src="./lil-match.png" width="40" height="40" /> lil-match</h1>
+<h1 align="center">
+ <img src="./lil-match.png" width="40" height="40" /> lil-match
+</h1>
 
 > Super small pattern matching library for TS projects
 
@@ -58,9 +60,9 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 let input: 'something' | 'nothing'
 
 let output = match(input)
- .with('something', (val) => /* */)
- .with('nothing', (val) => /* */)
- .exhaustive('Unhandled input')
+  .with('something', (res) => res)
+  .with('nothing', (res) => res)
+  .exhaustive('Unhandled input')
 ```
 
 ### `.with(pattern, callback(match))`
@@ -90,25 +92,25 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 let input: 'something' | 'nothing'
 
 let output = match(input)
- .with('something', (val) => /* */)
- .with('nothing', (val) => /* */)
- .exhaustive('Unhandled input')
+  .with('something', (res) => res)
+  .with('nothing', (res) => res)
+  .exhaustive('Unhandled input')
 ```
 
 ##### Enums
 
 ```ts
 enum Type {
- ONE,
- TWO
+  ONE,
+  TWO,
 }
 
 let input: Type
 
 let output = match(input)
- .with(Type.ONE, (val) => /* */)
- .with(Type.TWO, (val) => /* */)
- .exhaustive('Unhandled input')
+  .with(Type.ONE, (res) => res)
+  .with(Type.TWO, (res) => res)
+  .exhaustive('Unhandled input')
 ```
 
 ##### Match primitives with constructors
@@ -117,25 +119,25 @@ let output = match(input)
 let input: string | number
 
 let output = match(input)
- .with(String, (val) => /* */)
- .with(Number, (val) => /* */)
- .exhaustive('Unhandled input')
+  .with(String, (res) => res)
+  .with(Number, (res) => res)
+  .exhaustive('Unhandled input')
 ```
 
 ##### Objects
 
 ```ts
 let input:
- | { type: 'pending' }
- | { type: 'failed' }
- | { type: 'ready', data: { type: 'image' } | { type: 'text' } }
+  | { type: 'pending' }
+  | { type: 'failed' }
+  | { type: 'ready'; data: { type: 'image' } | { type: 'text' } }
 
 let output = match(input)
- .with({ type: 'ready', data: { type: 'image' } }, (val) => /* */)
- .with({ type: 'ready', data: { type: 'text' } }, (val) => /* */)
- .with({ type: 'pending' }, (val) => /* */)
- .with({ type: 'failed' }, (val) => /* */)
- .exhaustive('Unhandled input')
+  .with({ type: 'ready', data: { type: 'image' } }, (res) => res)
+  .with({ type: 'ready', data: { type: 'text' } }, (res) => res)
+  .with({ type: 'pending' }, (res) => res)
+  .with({ type: 'failed' }, (res) => res)
+  .exhaustive('Unhandled input')
 ```
 
 ### `.run()`
@@ -158,8 +160,8 @@ The output of [`match`](#matchinput) chain. Can be optional if not all the condi
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' | 'nothing' = match(input)
-  .with({ text: 'something' }, (val) => val.text)
-  .with({ text: 'nothing' }, (val) => val.text)
+  .with({ text: 'something' }, (res) => res.text)
+  .with({ text: 'nothing' }, (res) => res.text)
   .run()
 ```
 
@@ -169,7 +171,7 @@ let output: 'something' | 'nothing' = match(input)
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' | undefined = match(input)
-  .with({ text: 'something' }, (val) => val.text)
+  .with({ text: 'something' }, (res) => res.text)
   .run()
 ```
 
@@ -183,7 +185,7 @@ let output: undefined = match(input).run()
 
 ### `.exhaustive(errorMessage)`
 
-Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check, plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpattern-callbackmatch). This method is designed to check strongly typed cases.
+Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check. Plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpattern-callbackmatch). This method is designed to check strongly typed cases.
 
 #### Params
 
@@ -203,8 +205,8 @@ The output of [`match`](#matchinput) chain. Use [`.run`](#run) for an optional r
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' | 'nothing' = match(input)
-  .with({ text: 'something' }, (val) => val.text)
-  .with({ text: 'nothing' }, (val) => val.text)
+  .with({ text: 'something' }, (res) => res.text)
+  .with({ text: 'nothing' }, (res) => res.text)
   .exhaustive('Unhandled input')
 ```
 
@@ -214,8 +216,8 @@ let output: 'something' | 'nothing' = match(input)
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' = match(input)
-  .with({ text: 'something' }, (val) => val.text)
-  // will show error of unhandled `{ text: 'nothing' }` case on type check
+  .with({ text: 'something' }, (res) => res.text)
+  // will show error of unhandled `{ text: 'nothing' }` case during the type check
   // @ts-expect-error
   .exhaustive('Unhandled input')
 ```
@@ -240,7 +242,7 @@ The output of [`match`](#matchinput) chain, plus the result of the `callback`.
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' | null = match(input)
-  .with({ text: 'something' }, (val) => val.text)
+  .with({ text: 'something' }, (res) => res.text)
   .otherwise((unmatched) => {
     console.log(unmatched.text) // will be 'nothing'
     return null
@@ -264,8 +266,8 @@ let output: null = match(input).otherwise((unmatched) => {
 let input: { text: 'something' } | { text: 'nothing' }
 
 let output: 'something' | 'nothing' = match(input)
-  .with({ text: 'something' }, (val) => val.text)
-  .with({ text: 'nothing' }, (val) => val.text)
+  .with({ text: 'something' }, (res) => res.text)
+  .with({ text: 'nothing' }, (res) => res.text)
   // Impossible to call because all conditions are matched
   // .otherwise((_) => '🤷‍♂️')
   .run()
@@ -278,6 +280,94 @@ let output: 'something' | 'nothing' = match(input)
 The difference is mostly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny footprint of the library means more understandable code, simpler types, and almost no effect on your app bundle size.
 
 If your project requires advanced pattern matching features, please have a look at amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) by [@gvergnaud](https://github.com/gvergnaud).
+
+### Is it better than native `switch` & `case`?
+
+It's not better, it's just a bit different. In my opinion, the result code is cleaner, especially when you need to handle nested unions, for example:
+
+```ts
+let input:
+  | { type: 'idle' }
+  | { type: 'ready'; data: { type: 'image' } | { type: 'text' } }
+
+let output = match(input)
+  .with({ type: 'idle' }, (res) => res)
+  .with({ type: 'ready', data: { type: 'image' } }, (res) => res)
+  .with({ type: 'ready', data: { type: 'text' } }, (res) => res)
+  .exhaustive('Unhandled input')
+```
+
+<details><summary>The same code using <code>switch</code> statement</summary>
+
+```ts
+let input:
+  | { type: 'idle' }
+  | { type: 'ready'; data: { type: 'image' } | { type: 'text' } }
+
+function exhaustive(input: never) {
+  throw new Error('Unhandled input')
+}
+
+switch (input.type) {
+  case 'idle': {
+    /* do something */
+    break
+  }
+  case 'ready': {
+    switch (input.data.type) {
+      case 'image': {
+        /* do something */
+        break
+      }
+      case 'text': {
+        /* do something */
+        break
+      }
+      default:
+        exhaustive(input.data)
+    }
+    break
+  }
+  default:
+    exhaustive(input)
+}
+```
+
+</details>
+
+Additionally `switch` statement can't handle checking against a type of value, which is pretty easy with `lil-match` by using constructors.
+
+```ts
+let input: number | string | boolean
+
+let output = match(input)
+  .with(Number, (res) => res)
+  .with(String, (res) => res)
+  .with(Boolean, (res) => res)
+  .exhaustive('Unhandled input')
+```
+
+<details><summary>The same code using <code>if</code> statement</summary>
+
+```ts
+let input: number | string | boolean
+
+function exhaustive(input: never) {
+  throw new Error('Unhandled input')
+}
+
+if (typeof input === 'string') {
+  /* do something */
+} else if (typeof input === 'number') {
+  /* do something */
+} else if (typeof input === 'boolean') {
+  /* do something */
+} else {
+  exhaustive(input)
+}
+```
+
+</details>
 
 ## 🙏 Acknowledgments
 
