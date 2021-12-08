@@ -10,6 +10,7 @@
   },
   "repository": "exah/lil-match",
   "author": "John Grishin <r@exah.me>",
+  "sideEffects": false,
   "license": "MIT",
   "keywords": [
     "pattern",
