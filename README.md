@@ -370,6 +370,10 @@ if (typeof input === 'string') {
 
 </details>
 
+### Is this library code compatible with IE11?
+
+No, the library depends on [rest parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Rest_parameters), [arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions), object [shorthand method definitions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions), and other features (but polyfill-able) from modern JS. If you need to support older browsers, include `lil-match` from `node_modules` to your compiler white-list.
+
 ## 🙏 Acknowledgments
 
 - The library was heavily inspired by amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) and [`ts-pattern-matching`](https://github.com/WimJongeneel/ts-pattern-matching) libraries
