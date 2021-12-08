@@ -66,13 +66,13 @@ let output = match(input)
   .exhaustive('Unhandled input')
 ```
 
-### `.with(pattern, callback(match))`
+### `.with(...patterns, callback(match))`
 
 Create a match pattern based on `input`. The pattern can be an object, primitive value, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns. Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
 
 #### Params
 
-- `pattern`
+- `...patterns`
   - can be an object, literal value, primitive, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors
 - `callback(match)`
   - access matched value
@@ -138,6 +138,19 @@ let output = match(input)
   .with({ type: 'ready', data: { type: 'text' } }, (res) => res)
   .with({ type: 'pending' }, (res) => res)
   .with({ type: 'failed' }, (res) => res)
+  .exhaustive('Unhandled input')
+```
+
+##### Multiple patterns
+
+Specify multiple patterns as arguments. The last parameter should be a callback.
+
+```ts
+let input: string | number | bigint
+
+let output = match(input)
+  .with(Number, BigInt, (res) => console.log('Number-like'))
+  .with(String, (res) => console.log('String'))
   .exhaustive('Unhandled input')
 ```
 
@@ -377,7 +390,7 @@ No, the library depends on [rest parameters](https://developer.mozilla.org/en-US
 ## 🙏 Acknowledgments
 
 - The library was heavily inspired by amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) and [`ts-pattern-matching`](https://github.com/WimJongeneel/ts-pattern-matching) libraries
-- The icon in the title designed by [@keytofreedom](https://www.instagram.com/keytofreedom)
+- The icon designed by [@keytofreedom](https://www.instagram.com/keytofreedom)
 
 ---
 
