@@ -793,9 +793,42 @@ describe('match constructor', () => {
     expect(() => fn(pending)).toThrow(new Error(ERROR))
     expect(() => fn(failed)).toThrow(new Error(ERROR))
   })
+
+  test('multiple pattern of primitives', () => {
+    function fn(input: string | symbol | number | bigint | boolean) {
+      const result = match(input)
+        .with(Number, BigInt, (res) => {
+          expectType<number | bigint>(res)
+          return `number-like: ${res}` as const
+        })
+        .with(Boolean, (res) => {
+          expectType<boolean>(res)
+          return `boolean: ${res}` as const
+        })
+        .with(String, Symbol, (res) => {
+          expectType<string | symbol>(res)
+          return `string | symbol: ${res.toString()}` as const
+        })
+        .exhaustive('Unhandled input')
+
+      type Result =
+        | `number-like: ${number | bigint}`
+        | `boolean: ${boolean}`
+        | `string | symbol: ${string | boolean}`
+
+      expectType<Result>(result)
+      return result
+    }
+
+    expect(fn(100)).toBe(`number-like: 100`)
+    expect(fn(100n)).toBe(`number-like: 100`)
+    expect(fn('text')).toBe(`string | symbol: text`)
+    expect(fn(Symbol('unique'))).toBe(`string | symbol: Symbol(unique)`)
+    expect(fn(true)).toBe(`boolean: true`)
+  })
 })
 
-describe('multi pattern', () => {
+describe('multi pattern union', () => {
   test('run', () => {
     function fn(input: Type) {
       const result = match(input)

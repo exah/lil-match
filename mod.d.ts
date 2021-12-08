@@ -24,16 +24,16 @@ declare type OmitToken<T> = Pick<
 declare type NonEmpty<T> = {} extends T ? never : T
 declare type OmitValue<T> = Exclude<T, NonEmpty<OmitToken<T>>>
 
-declare type DeepExtract<A, B, N = never> = A extends object
-  ? B extends object
+declare type DeepExtract<T, U, N = never> = T extends object
+  ? U extends object
     ? OmitValue<{
-        [K in keyof A]: K extends keyof B
-          ? DeepExtract<A[K], B[K], TOKEN>
-          : A[K]
+        [K in keyof T]: K extends keyof U
+          ? DeepExtract<T[K], U[K], TOKEN>
+          : T[K]
       }>
     : N
-  : A extends B
-  ? A
+  : T extends U
+  ? T
   : N
 
 declare type Pattern<Input> = Input extends number
@@ -68,17 +68,17 @@ declare type Invert<Pattern> = Pattern extends NumberConstructor
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
 
-declare type DeepExclude<A, B, N = never> = A extends object
-  ? B extends object
+declare type DeepExclude<T, U, N = never> = T extends object
+  ? U extends object
     ? OmitValue<{
-        [K in keyof A]: K extends keyof B
-          ? DeepExclude<A[K], B[K], TOKEN>
-          : A[K]
+        [K in keyof T]: K extends keyof U
+          ? DeepExclude<T[K], U[K], TOKEN>
+          : T[K]
       }>
     : N
-  : A extends B
+  : T extends U
   ? N
-  : A
+  : T
 
 declare interface NonExhaustive<_> {}
 
@@ -87,8 +87,13 @@ declare interface Match<Input, Next = Input, Output = never> {
     pattern: P,
     callback: (result: R) => O,
   ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
-  with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
-    ...args: [...patterns: P[], callback: (result: R) => O]
+  with<
+    P extends [Pattern<Input>, ...Pattern<Input>[]],
+    O,
+    I = Invert<P[number]>,
+    R = DeepExtract<Input, I>,
+  >(
+    ...args: [...patterns: P, callback: (result: R) => O]
   ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
   otherwise: [Next] extends [never]
