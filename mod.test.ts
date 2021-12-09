@@ -979,7 +979,7 @@ describe('guards', () => {
   }
 
   test('run', () => {
-    function fn(input: Input) {
+    function fn(input: Input | number[]) {
       const result = match(input)
         .with({ data: isAuthor }, (res) => {
           expectType<number>(res.data.id)
@@ -993,14 +993,21 @@ describe('guards', () => {
 
           return `Post: ${res.data.title}` as const
         })
+        .with(Array.isArray, (res) => {
+          expectType<number[]>(res)
+          return `Array: ${res.join(', ')}` as const
+        })
         .run()
 
-      expectType<`Author: ${string}` | `Post: ${string}`>(result)
+      expectType<`Author: ${string}` | `Post: ${string}` | `Array: ${string}`>(
+        result,
+      )
       return result
     }
 
     expect(fn({ data: { id: 0, name: 'John' } })).toBe('Author: John')
     expect(fn({ data: { id: 0, title: 'Bar' } })).toBe('Post: Bar')
+    expect(fn([1, 2, 3])).toBe('Array: 1, 2, 3')
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
   })
