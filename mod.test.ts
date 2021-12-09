@@ -963,7 +963,7 @@ describe('guards', () => {
     title: string
   }
 
-  type Input = { data: Author } | { data: Post }
+  type Input = { data: Author } | { data: Post } | number[]
 
   function isAuthor(input: unknown): input is Author {
     return (
@@ -984,7 +984,7 @@ describe('guards', () => {
   }
 
   test('run', () => {
-    function fn(input: Input | number[]) {
+    function fn(input: Input) {
       const result = match(input)
         .with({ data: isAuthor }, (res) => {
           expectType<UUID>(res.data.id)

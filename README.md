@@ -4,7 +4,7 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 255 B when minified & gziped
+- [x] Only 270 B when minified & gziped
 - [x] Designed for `TypeScript` projects
 - [x] No dependencies
 
@@ -68,12 +68,12 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns. Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
+Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns, or custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
 
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, or `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, or [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
@@ -151,6 +151,34 @@ let input: string | number | bigint
 let output = match(input)
   .with(Number, BigInt, (res) => console.log('Number-like'))
   .with(String, (res) => console.log('String'))
+  .exhaustive('Unhandled input')
+```
+
+##### Custom type guard
+
+Define [type guard function](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value to validate the input.
+
+```ts
+interface User {
+  id: number
+  name: string
+}
+
+let input: { data: User } | { data: number[] } | { data: 'literal' }
+
+function isUser(input: unknown): input is User {
+  return (
+    typeof input === 'object' &&
+    input != null &&
+    'id' in input &&
+    'name' in input
+  )
+}
+
+let output: string = match(input)
+  .with({ data: isUser }, (res) => `User: ${res.data.name}`)
+  .with({ data: Array.isArray }, (res) => `Array of: ${res.data}`)
+  .with({ data: 'literal' }, (res) => res.data)
   .exhaustive('Unhandled input')
 ```
 
