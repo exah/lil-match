@@ -1,28 +1,22 @@
-declare type Primitives =
-  | number
-  | boolean
-  | string
-  | symbol
-  | bigint
-  | undefined
-  | null
+type Primitives = number | boolean | string | symbol | bigint | undefined | null
 
-declare type IsOpaque<T> = T extends object
+type IsOpaque<T> = T extends object
   ? T extends Primitives
     ? true
     : false
   : false
 
-declare type IsEmpty<T> = {} extends T ? true : false
-declare type PickNever<T> = Pick<
+type IsEmpty<T> = {} extends T ? true : false
+type NonEmpty<T> = IsEmpty<T> extends true ? never : T
+
+type PickNever<T> = Pick<
   T,
   { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
 >
 
-declare type NonEmpty<T> = IsEmpty<T> extends true ? never : T
-declare type ExcludeNever<T> = Exclude<T, NonEmpty<PickNever<T>>>
+type ExcludeNever<T> = Exclude<T, NonEmpty<PickNever<T>>>
 
-declare type DeepExtract<T, U> = IsOpaque<T> extends true
+type DeepExtract<T, U> = IsOpaque<T> extends true
   ? Extract<T, U>
   : T extends object
   ? U extends object
@@ -35,7 +29,7 @@ declare type DeepExtract<T, U> = IsOpaque<T> extends true
     : never
   : Extract<T, U>
 
-declare type DeepExclude<T, U> = IsOpaque<T> extends true
+type DeepExclude<T, U> = IsOpaque<T> extends true
   ? Exclude<T, U>
   : T extends object
   ? U extends object
@@ -48,11 +42,11 @@ declare type DeepExclude<T, U> = IsOpaque<T> extends true
     : never
   : Exclude<T, U>
 
-declare interface Guard<Input, Type extends Input> {
+interface Guard<Input, Type extends Input> {
   (input: Input): input is Type
 }
 
-declare type Pattern<Input> =
+type Pattern<Input> =
   | Guard<Input, Input>
   | (Input extends number
       ? Input | NumberConstructor
@@ -70,7 +64,7 @@ declare type Pattern<Input> =
       ? { [K in keyof Input]?: Pattern<Input[K]> }
       : never)
 
-declare type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
+type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? P
   : Pattern extends NumberConstructor
   ? number
@@ -88,9 +82,9 @@ declare type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
 
-declare interface NonExhaustive<_> {}
+interface NonExhaustive<_> {}
 
-declare interface Match<Input, Next = Input, Output = never> {
+interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
     callback: (result: R) => O,
