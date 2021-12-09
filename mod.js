@@ -1,7 +1,7 @@
-const UNKNOWN = []
+let UNKNOWN = []
 
-const isObject = (input) => input != null && typeof input === 'object'
-const compare = (input) => (pattern) => {
+let isObject = (input) => input && typeof input === 'object'
+let compare = (input) => (pattern) => {
   if (pattern === Boolean) return typeof input === 'boolean'
   if (pattern === String) return typeof input === 'string'
   if (pattern === Number) return typeof input === 'number'
@@ -19,14 +19,14 @@ const compare = (input) => (pattern) => {
   return Object.is(input, pattern)
 }
 
-export const match = (input, output = UNKNOWN) => ({
+export let match = (input, output = UNKNOWN) => ({
   with(...patterns) {
-    const callback = patterns.pop()
+    let callback = patterns.pop()
     if (patterns.some(compare(input))) output = callback(input)
     return this
   },
   exhaustive(message) {
-    if (output === UNKNOWN) throw new Error(message)
+    if (output === UNKNOWN) throw Error(message)
     return output
   },
   otherwise(cb) {
