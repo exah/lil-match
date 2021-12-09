@@ -1,4 +1,5 @@
 import { expectType } from 'tsd'
+import { Opaque } from 'type-fest'
 import { match } from '.'
 
 const ERROR = 'ERROR'
@@ -6,6 +7,8 @@ const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
 
 const LITERAL = 'LITERAL'
 type LITERAL = typeof LITERAL
+
+type UUID = Opaque<string, 'UUID'>
 
 enum Type {
   PENDING,
@@ -22,6 +25,8 @@ type Result =
   | { type: Type.PENDING; data?: never; error?: never }
   | { type: Type.READY; data: Data; error?: never }
   | { type: Type.FAILED; data?: Data; error: Error }
+
+const id = 'xxxx' as UUID
 
 const number = {
   type: Type.READY,
@@ -949,12 +954,12 @@ describe('multi pattern union', () => {
 
 describe('guards', () => {
   interface Author {
-    id: number
+    id: UUID
     name: string
   }
 
   interface Post {
-    id: number
+    id: UUID
     title: string
   }
 
@@ -979,28 +984,35 @@ describe('guards', () => {
   }
 
   test('run', () => {
-    function fn(input: Input) {
+    function fn(input: Input | number[]) {
       const result = match(input)
         .with({ data: isAuthor }, (res) => {
-          expectType<number>(res.data.id)
+          expectType<UUID>(res.data.id)
           expectType<string>(res.data.name)
 
           return `Author: ${res.data.name}` as const
         })
         .with({ data: isPost }, (res) => {
-          expectType<number>(res.data.id)
+          expectType<UUID>(res.data.id)
           expectType<string>(res.data.title)
 
           return `Post: ${res.data.title}` as const
         })
+        .with(Array.isArray, (res) => {
+          expectType<number[]>(res)
+          return `Array: ${res.join(', ')}` as const
+        })
         .run()
 
-      expectType<`Author: ${string}` | `Post: ${string}`>(result)
+      expectType<`Author: ${string}` | `Post: ${string}` | `Array: ${string}`>(
+        result,
+      )
       return result
     }
 
-    expect(fn({ data: { id: 0, name: 'John' } })).toBe('Author: John')
-    expect(fn({ data: { id: 0, title: 'Bar' } })).toBe('Post: Bar')
+    expect(fn({ data: { id, name: 'John' } })).toBe('Author: John')
+    expect(fn({ data: { id, title: 'Bar' } })).toBe('Post: Bar')
+    expect(fn([1, 2, 3])).toBe('Array: 1, 2, 3')
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
   })
