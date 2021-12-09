@@ -418,6 +418,7 @@ No, the library depends on [rest parameters](https://developer.mozilla.org/en-US
 ## 🙏 Acknowledgments
 
 - The library was heavily inspired by amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) and [`ts-pattern-matching`](https://github.com/WimJongeneel/ts-pattern-matching) libraries
+- Special thanks to [@atsikov](https://github.com/atsikov) for helping me with initial types
 - The icon designed by [@keytofreedom](https://www.instagram.com/keytofreedom)
 
 ---
