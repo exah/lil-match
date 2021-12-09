@@ -7,15 +7,24 @@ declare type Primitives =
   | undefined
   | null
 
+declare type IsOpaque<T> = T extends object
+  ? T extends Primitives
+    ? true
+    : false
+  : false
+
+declare type IsEmpty<T> = {} extends T ? true : false
 declare type PickNever<T> = Pick<
   T,
   { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
 >
 
-declare type NonEmpty<T> = {} extends T ? never : T
+declare type NonEmpty<T> = IsEmpty<T> extends true ? never : T
 declare type ExcludeNever<T> = Exclude<T, NonEmpty<PickNever<T>>>
 
-declare type DeepExtract<T, U> = T extends object
+declare type DeepExtract<T, U> = IsOpaque<T> extends true
+  ? Extract<T, U>
+  : T extends object
   ? U extends object
     ? Extract<
         ExcludeNever<{
@@ -26,7 +35,9 @@ declare type DeepExtract<T, U> = T extends object
     : never
   : Extract<T, U>
 
-declare type DeepExclude<T, U> = T extends object
+declare type DeepExclude<T, U> = IsOpaque<T> extends true
+  ? Exclude<T, U>
+  : T extends object
   ? U extends object
     ? Exclude<
         ExcludeNever<{
