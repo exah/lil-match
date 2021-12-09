@@ -7,12 +7,6 @@ declare type Primitives =
   | undefined
   | null
 
-declare type IsPlainObject<T> = T extends object
-  ? T extends Primitives
-    ? false
-    : true
-  : false
-
 declare type PickNever<T> = Pick<
   T,
   { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
@@ -61,7 +55,7 @@ declare type Pattern<Input> =
       ? Input | BigIntConstructor
       : Input extends Primitives
       ? Input
-      : IsPlainObject<Input> extends true
+      : Input extends object
       ? { [K in keyof Input]?: Pattern<Input[K]> }
       : never)
 
@@ -79,7 +73,7 @@ declare type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? bigint
   : Pattern extends Primitives
   ? Pattern
-  : IsPlainObject<Pattern> extends true
+  : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
 
