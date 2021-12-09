@@ -1,6 +1,3 @@
-declare const TOKEN: unique symbol
-declare type TOKEN = typeof TOKEN
-
 declare type Primitives =
   | number
   | boolean
@@ -16,25 +13,35 @@ declare type IsPlainObject<T> = T extends object
     : true
   : false
 
-declare type OmitToken<T> = Pick<
+declare type PickNever<T> = Pick<
   T,
-  { [K in keyof T]: T[K] extends TOKEN ? K : never }[keyof T]
+  { [K in keyof T]: T[K] extends never ? K : never }[keyof T]
 >
 
 declare type NonEmpty<T> = {} extends T ? never : T
-declare type OmitValue<T> = Exclude<T, NonEmpty<OmitToken<T>>>
+declare type ExcludeNever<T> = Exclude<T, NonEmpty<PickNever<T>>>
 
-declare type DeepExtract<T, U, N = never> = T extends object
+declare type DeepExtract<T, U> = T extends object
   ? U extends object
-    ? OmitValue<{
-        [K in keyof T]: K extends keyof U
-          ? DeepExtract<T[K], U[K], TOKEN>
-          : T[K]
-      }>
-    : N
-  : T extends U
-  ? T
-  : N
+    ? Extract<
+        ExcludeNever<{
+          [K in keyof T]: K extends keyof U ? DeepExtract<T[K], U[K]> : T[K]
+        }>,
+        U
+      >
+    : never
+  : Extract<T, U>
+
+declare type DeepExclude<T, U> = T extends object
+  ? U extends object
+    ? Exclude<
+        ExcludeNever<{
+          [K in keyof T]: K extends keyof U ? DeepExclude<T[K], U[K]> : T[K]
+        }>,
+        U
+      >
+    : never
+  : Exclude<T, U>
 
 declare type Pattern<Input> = Input extends number
   ? Input | NumberConstructor
@@ -67,18 +74,6 @@ declare type Invert<Pattern> = Pattern extends NumberConstructor
   : IsPlainObject<Pattern> extends true
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
-
-declare type DeepExclude<T, U, N = never> = T extends object
-  ? U extends object
-    ? OmitValue<{
-        [K in keyof T]: K extends keyof U
-          ? DeepExclude<T[K], U[K], TOKEN>
-          : T[K]
-      }>
-    : N
-  : T extends U
-  ? N
-  : T
 
 declare interface NonExhaustive<_> {}
 
