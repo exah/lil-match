@@ -7,6 +7,7 @@ const compare = (input) => (pattern) => {
   if (pattern === Number) return typeof input === 'number'
   if (pattern === Symbol) return typeof input === 'symbol'
   if (pattern === BigInt) return typeof input === 'bigint'
+  if (typeof pattern === 'function') return pattern(input)
 
   if (isObject(pattern)) {
     return (

@@ -43,23 +43,31 @@ declare type DeepExclude<T, U> = T extends object
     : never
   : Exclude<T, U>
 
-declare type Pattern<Input> = Input extends number
-  ? Input | NumberConstructor
-  : Input extends string
-  ? Input | StringConstructor
-  : Input extends boolean
-  ? Input | BooleanConstructor
-  : Input extends symbol
-  ? Input | SymbolConstructor
-  : Input extends bigint
-  ? Input | BigIntConstructor
-  : Input extends Primitives
-  ? Input
-  : IsPlainObject<Input> extends true
-  ? { [K in keyof Input]?: Pattern<Input[K]> }
-  : never
+declare interface Guard<Input, Type extends Input> {
+  (input: Input): input is Type
+}
 
-declare type Invert<Pattern> = Pattern extends NumberConstructor
+declare type Pattern<Input> =
+  | Guard<Input, Input>
+  | (Input extends number
+      ? Input | NumberConstructor
+      : Input extends string
+      ? Input | StringConstructor
+      : Input extends boolean
+      ? Input | BooleanConstructor
+      : Input extends symbol
+      ? Input | SymbolConstructor
+      : Input extends bigint
+      ? Input | BigIntConstructor
+      : Input extends Primitives
+      ? Input
+      : IsPlainObject<Input> extends true
+      ? { [K in keyof Input]?: Pattern<Input[K]> }
+      : never)
+
+declare type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
+  ? P
+  : Pattern extends NumberConstructor
   ? number
   : Pattern extends StringConstructor
   ? string

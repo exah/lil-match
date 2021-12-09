@@ -946,3 +946,62 @@ describe('multi pattern union', () => {
     expect(() => fn(Type.FAILED)).toThrow(new Error(ERROR))
   })
 })
+
+describe('guards', () => {
+  interface Author {
+    id: number
+    name: string
+  }
+
+  interface Post {
+    id: number
+    title: string
+  }
+
+  type Input = { data: Author } | { data: Post }
+
+  function isAuthor(input: unknown): input is Author {
+    return (
+      typeof input === 'object' &&
+      input != null &&
+      'id' in input &&
+      'name' in input
+    )
+  }
+
+  function isPost(input: unknown): input is Post {
+    return (
+      typeof input === 'object' &&
+      input != null &&
+      'id' in input &&
+      'title' in input
+    )
+  }
+
+  test('run', () => {
+    function fn(input: Input) {
+      const result = match(input)
+        .with({ data: isAuthor }, (res) => {
+          expectType<number>(res.data.id)
+          expectType<string>(res.data.name)
+
+          return `Author: ${res.data.name}` as const
+        })
+        .with({ data: isPost }, (res) => {
+          expectType<number>(res.data.id)
+          expectType<string>(res.data.title)
+
+          return `Post: ${res.data.title}` as const
+        })
+        .run()
+
+      expectType<`Author: ${string}` | `Post: ${string}`>(result)
+      return result
+    }
+
+    expect(fn({ data: { id: 0, name: 'John' } })).toBe('Author: John')
+    expect(fn({ data: { id: 0, title: 'Bar' } })).toBe('Post: Bar')
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+})
