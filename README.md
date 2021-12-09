@@ -318,7 +318,7 @@ let input:
   | { type: 'idle' }
   | { type: 'ready'; data: { type: 'image' } | { type: 'text' } }
 
-function exhaustive(input: never) {
+function exhaustive(_: never) {
   throw new Error('Unhandled input')
 }
 
@@ -366,7 +366,7 @@ let output = match(input)
 ```ts
 let input: number | string | boolean
 
-function exhaustive(input: never) {
+function exhaustive(_: never) {
   throw new Error('Unhandled input')
 }
 
