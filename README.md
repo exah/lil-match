@@ -43,12 +43,20 @@ let output: string = match(input)
 
 Returns an object based on `input` with methods for chaining. Use [`.with`](#withpattern-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
 
+#### Exports
+
+```ts
+import { match } from 'lil-match'
+```
+
 #### Params
 
 - `input`
   - a value you'll be testing
 
-#### Returns object
+#### Returns
+
+Object of:
 
 - [`.with`](#withpattern-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
@@ -68,17 +76,19 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns, or custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
+Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenpredicate). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
 
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, or [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenpredicate).
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
 
-#### Returns object
+#### Returns
+
+Object of:
 
 - [`.with`](#withpattern-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
@@ -156,9 +166,11 @@ let output = match(input)
 
 ##### Custom type guard
 
-Define [type guard function](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value to validate the input.
+Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenpredicate) and pass it as a pattern value to validate the input.
 
 ```ts
+import { match, when } from 'lil-match'
+
 interface User {
   id: number
   name: string
@@ -177,7 +189,7 @@ function isUser(input: unknown): input is User {
 
 let output: string = match(input)
   .with({ data: when(isUser) }, (res) => `User: ${res.data.name}`)
-  .with({ data: when(Array.isArray) }, (res) => `Array of: ${res.data}`)
+  .with({ data: Array }, (res) => `Array of: ${res.data}`)
   .with({ data: 'literal' }, (res) => res.data)
   .exhaustive('Unhandled input')
 ```
@@ -313,6 +325,51 @@ let output: 'something' | 'nothing' = match(input)
   // Impossible to call because all conditions are matched
   // .otherwise((_) => '🤷‍♂️')
   .run()
+```
+
+### `when(guard)`
+
+Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value of [`.with`](#withpattern-callbackmatch) to narrow the input type.
+
+#### Exports
+
+```ts
+import { match } from 'lil-match'
+```
+
+#### Params
+
+- `guard(input)`
+
+  ```ts
+  interface Guard<Input, Type extends Input> {
+    (input: Input): input is Type
+  }
+  ```
+
+#### Returns function
+
+Use returned function as a pattern value of [`.with`](#withpattern-callbackmatch) to validate the input.
+
+#### Examples
+
+##### Create a custom guard
+
+```ts
+function isSomething(input: unknown): input is 'something' {
+  return input === 'something')
+}
+```
+
+##### Use build-in type guard
+
+```ts
+let input: number[] | null | undefined
+
+let output: string = match(input)
+  .with(when(Array.isArray), (res) => `Array of: ${res}`)
+  .with(null, undefined, (res) => `Nullable`)
+  .exhaustive('Unhandled input')
 ```
 
 ## 🙋‍♂️ FAQ
