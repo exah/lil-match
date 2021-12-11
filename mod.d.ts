@@ -61,7 +61,9 @@ type Pattern<Input> =
       : Input extends Primitives
       ? Input
       : Input extends object
-      ? { [K in keyof Input]?: Pattern<Input[K]> }
+      ?
+          | (abstract new (...args: any[]) => Input)
+          | { [K in keyof Input]?: Pattern<Input[K]> }
       : never)
 
 type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
@@ -78,6 +80,8 @@ type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? bigint
   : Pattern extends Primitives
   ? Pattern
+  : Pattern extends abstract new (...args: any[]) => infer C
+  ? C
   : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
@@ -106,10 +110,9 @@ interface Match<Input, Next = Input, Output = never> {
     : NonExhaustive<Next>
 }
 
-export declare function is<
+export declare function when<
+  F extends Guard<Input, Type>,
   Input,
-  Type extends abstract new (...args: any) => any,
->(
-  type: Type,
-): (input: Input) => input is Input extends InstanceType<Type> ? Input : never
+  Type extends Input,
+>(guard: F): F
 export declare function match<Input>(input: Input): Match<Input>

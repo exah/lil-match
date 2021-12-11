@@ -1,6 +1,6 @@
 import { expectType } from 'tsd'
 import { Opaque } from 'type-fest'
-import { match, is } from '.'
+import { match, when } from '.'
 
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
@@ -572,7 +572,7 @@ describe('match constructor', () => {
   test('run', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -580,7 +580,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -588,7 +588,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -629,7 +629,7 @@ describe('match constructor', () => {
   test('undefined on unhandled', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -637,7 +637,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -664,7 +664,7 @@ describe('match constructor', () => {
   test('otherwise', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -672,7 +672,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -680,7 +680,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -712,7 +712,7 @@ describe('match constructor', () => {
   test('exhaustive', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -720,7 +720,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -728,7 +728,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -769,7 +769,7 @@ describe('match constructor', () => {
   test('not exhaustive', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
+        .with({ type: Type.READY, data: { value: Number } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -777,7 +777,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
+        .with({ type: Type.READY, data: { value: String } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -982,19 +982,19 @@ describe('guards', () => {
   test('run', () => {
     function fn(input: Input) {
       const result = match(input)
-        .with({ data: isAuthor }, (res) => {
+        .with({ data: when(isAuthor) }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.name)
 
           return `Author: ${res.data.name}` as const
         })
-        .with({ data: is(Post) }, (res) => {
+        .with({ data: Post }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.title)
 
           return `Post: ${res.data.title}` as const
         })
-        .with(Array.isArray, (res) => {
+        .with(when(Array.isArray), (res) => {
           expectType<number[]>(res)
           return `Array: ${res.join(', ')}` as const
         })

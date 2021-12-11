@@ -176,8 +176,8 @@ function isUser(input: unknown): input is User {
 }
 
 let output: string = match(input)
-  .with({ data: isUser }, (res) => `User: ${res.data.name}`)
-  .with({ data: Array.isArray }, (res) => `Array of: ${res.data}`)
+  .with({ data: when(isUser) }, (res) => `User: ${res.data.name}`)
+  .with({ data: when(Array.isArray) }, (res) => `Array of: ${res.data}`)
   .with({ data: 'literal' }, (res) => res.data)
   .exhaustive('Unhandled input')
 ```
