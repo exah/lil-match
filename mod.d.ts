@@ -46,12 +46,12 @@ interface Guard<Input, Type extends Input> {
   (input: Input): input is Type
 }
 
-interface TaggedGuard<Input, Type extends Input> extends Guard<Input, Type> {
+interface When<Input, Type extends Input> extends Guard<Input, Type> {
   [tag: symbol]: 1
 }
 
 type Pattern<Input> =
-  | TaggedGuard<Input, Input>
+  | When<Input, Input>
   | (Input extends number
       ? Input | NumberConstructor
       : Input extends string
@@ -66,12 +66,14 @@ type Pattern<Input> =
       ? Input
       : Input extends object
       ?
-          | (abstract new (...args: any[]) => Input)
           | { [K in keyof Input]?: Pattern<Input[K]> }
+          | (abstract new (...args: any[]) => Input)
       : never)
 
-type Invert<Pattern> = Pattern extends TaggedGuard<infer _, infer P>
+type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? P
+  : Pattern extends abstract new (...args: any[]) => infer C
+  ? C
   : Pattern extends NumberConstructor
   ? number
   : Pattern extends StringConstructor
@@ -84,8 +86,6 @@ type Invert<Pattern> = Pattern extends TaggedGuard<infer _, infer P>
   ? bigint
   : Pattern extends Primitives
   ? Pattern
-  : Pattern extends abstract new (...args: any[]) => infer C
-  ? C
   : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
   : never
@@ -116,5 +116,5 @@ interface Match<Input, Next = Input, Output = never> {
 
 export declare function when<Input, Type extends Input>(
   guard: Guard<Input, Type>,
-): TaggedGuard<Input, Type>
+): When<Input, Type>
 export declare function match<Input>(input: Input): Match<Input>

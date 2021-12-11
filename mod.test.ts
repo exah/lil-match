@@ -10,6 +10,16 @@ type LITERAL = typeof LITERAL
 
 type UUID = Opaque<string, 'UUID'>
 
+class Post {
+  id: UUID
+  title: string
+
+  constructor(title: string) {
+    this.id = id
+    this.title = title
+  }
+}
+
 enum Type {
   PENDING,
   READY,
@@ -20,6 +30,7 @@ type Data =
   | { type: 'number'; value: number }
   | { type: 'string'; value: string }
   | { type: 'boolean'; value: boolean }
+  | { type: 'post'; value: Post }
 
 type Result =
   | { type: Type.PENDING; data?: never; error?: never }
@@ -456,6 +467,14 @@ describe('nested union', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { type: 'post' } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .otherwise((res) => {
           expectType<Type.PENDING | Type.FAILED>(res.type)
           expectType<undefined>(res.data)
@@ -463,7 +482,7 @@ describe('nested union', () => {
           return null
         })
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -596,6 +615,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .with({ type: Type.PENDING }, (res) => {
           expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
@@ -612,7 +639,7 @@ describe('match constructor', () => {
         })
         .run()
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -688,6 +715,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .otherwise((res) => {
           expectType<Type.PENDING | Type.FAILED>(res.type)
           expectType<undefined>(res.data)
@@ -695,7 +730,7 @@ describe('match constructor', () => {
           return null
         })
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -736,6 +771,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .with({ type: Type.PENDING }, (res) => {
           expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
@@ -752,7 +795,7 @@ describe('match constructor', () => {
         })
         .exhaustive(ERROR)
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -952,20 +995,10 @@ describe('multi pattern union', () => {
   })
 })
 
-describe('guards', () => {
+describe('when', () => {
   interface Author {
     id: UUID
     name: string
-  }
-
-  class Post {
-    id: UUID
-    title: string
-
-    constructor(title: string) {
-      this.id = id
-      this.title = title
-    }
   }
 
   type Input = { data: Author } | { data: Post } | number[]
@@ -979,6 +1012,10 @@ describe('guards', () => {
     )
   }
 
+  function isPost(input: unknown): input is Post {
+    return input instanceof Post
+  }
+
   test('run', () => {
     function fn(input: Input) {
       const result = match(input)
@@ -988,7 +1025,7 @@ describe('guards', () => {
 
           return `Author: ${res.data.name}` as const
         })
-        .with({ data: Post }, (res) => {
+        .with({ data: when(isPost) }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.title)
 

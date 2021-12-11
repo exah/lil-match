@@ -1,10 +1,5 @@
 let TAG = Symbol()
 
-export let when = (fn) => {
-  fn[TAG] = 1
-  return fn
-}
-
 let is = (type, input) =>
   input != null &&
   (type === Object ? typeof input === 'object' : Object(input) instanceof type)
@@ -22,6 +17,11 @@ let compare = (input) => (pattern) => {
   }
 
   return Object.is(input, pattern)
+}
+
+export let when = (fn) => {
+  fn[TAG] = 1
+  return fn
 }
 
 export let match = (input, output = TAG) => ({
