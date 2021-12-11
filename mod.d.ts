@@ -106,4 +106,10 @@ interface Match<Input, Next = Input, Output = never> {
     : NonExhaustive<Next>
 }
 
+export declare function is<
+  Input,
+  Type extends abstract new (...args: any) => any,
+>(
+  type: Type,
+): (input: Input) => input is Input extends InstanceType<Type> ? Input : never
 export declare function match<Input>(input: Input): Match<Input>

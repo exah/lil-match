@@ -1,17 +1,17 @@
-let UNKNOWN = []
+let PRIMITIVES = [Number, String, BigInt, Symbol, Boolean]
 
-let isObject = (input) => input && typeof input === 'object'
+export let is = (type) => (input) =>
+  input != null &&
+  (type === Object ? typeof input === 'object' : Object(input) instanceof type)
+
 let compare = (input) => (pattern) => {
-  if (pattern === Boolean) return typeof input === 'boolean'
-  if (pattern === String) return typeof input === 'string'
-  if (pattern === Number) return typeof input === 'number'
-  if (pattern === Symbol) return typeof input === 'symbol'
-  if (pattern === BigInt) return typeof input === 'bigint'
-  if (typeof pattern === 'function') return pattern(input)
+  if (typeof pattern === 'function') {
+    return PRIMITIVES.includes(pattern) ? is(pattern)(input) : pattern(input)
+  }
 
-  if (isObject(pattern)) {
+  if (is(Object)(pattern)) {
     return (
-      isObject(input) &&
+      is(Object)(input) &&
       Object.keys(pattern).every((key) => compare(input[key])(pattern[key]))
     )
   }
@@ -19,22 +19,22 @@ let compare = (input) => (pattern) => {
   return Object.is(input, pattern)
 }
 
-export let match = (input, output = UNKNOWN) => ({
+export let match = (input, output = PRIMITIVES) => ({
   with(...patterns) {
     let callback = patterns.pop()
     if (patterns.some(compare(input))) output = callback(input)
     return this
   },
   exhaustive(message) {
-    if (output === UNKNOWN) throw Error(message)
+    if (output === PRIMITIVES) throw Error(message)
     return output
   },
   otherwise(cb) {
-    if (output === UNKNOWN) return cb(input)
+    if (output === PRIMITIVES) return cb(input)
     return output
   },
   run() {
-    if (output === UNKNOWN) return
+    if (output === PRIMITIVES) return
     return output
   },
 })
