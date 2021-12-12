@@ -21,8 +21,6 @@ yarn add lil-match
 ## 💻 Use
 
 ```ts
-import { match } from 'lil-match'
-
 type Response =
   | { type: 'pending' }
   | { type: 'failed'; error: Error }
@@ -37,18 +35,15 @@ let output: string = match(input)
   .exhaustive('Unhandled input')
 ```
 
-## 📦 Exports
+## 📖 Docs
 
-Two functions [`match`](#matchinput) and [`when`](#whenguard).
+The package only exports two functions [`match`](#matchinput) and [`when`](#whenguard).
 
 <pre><code class='language-js'>import { <a href='#matchinput'>match</a>, <a href='#whenguard'>when</a> } from 'lil-match'</code></pre>
 
-
-## 📖 Docs
-
 ### `match(input)`
 
-Returns an object based on `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+Creates an object based on `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
 
 #### Params
 
@@ -57,7 +52,7 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 
 #### Returns
 
-Object of:
+Object with methods:
 
 - [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
@@ -89,7 +84,7 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 
 #### Returns
 
-Object of:
+Object with methods:
 
 - [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
