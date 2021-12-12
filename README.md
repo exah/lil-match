@@ -15,7 +15,7 @@ npm i -S lil-match
 ```
 
 ```sh
-npm add lil-match
+yarn add lil-match
 ```
 
 ## 💻 Use
@@ -41,9 +41,8 @@ let output: string = match(input)
 
 Two functions [`match`](#matchinput) and [`when`](#whenguard).
 
-```ts
-import { match, when } from 'lil-match'
-```
+<pre><code class='language-js'>import { <a href='#matchinput'>match</a>, <a href='#whenguard'>when</a> } from 'lil-match'</code></pre>
+
 
 ## 📖 Docs
 
