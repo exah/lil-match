@@ -27,7 +27,8 @@ export let when = (fn) => {
 export let match = (input, output = TAG) => ({
   with(...patterns) {
     let callback = patterns.pop()
-    if (patterns.some(compare(input))) output = callback(input)
+    if (output === TAG && patterns.some(compare(input)))
+      output = callback(input)
     return this
   },
   exhaustive(message) {
