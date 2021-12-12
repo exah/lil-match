@@ -72,8 +72,6 @@ type Pattern<Input> =
 
 type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? P
-  : Pattern extends abstract new (...args: any[]) => infer C
-  ? C
   : Pattern extends NumberConstructor
   ? number
   : Pattern extends StringConstructor
@@ -84,6 +82,8 @@ type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? symbol
   : Pattern extends BigIntConstructor
   ? bigint
+  : Pattern extends abstract new (...args: any[]) => infer C
+  ? C
   : Pattern extends Primitives
   ? Pattern
   : Pattern extends object
