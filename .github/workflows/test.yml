@@ -12,3 +12,6 @@ jobs:
 
       - name: Test
         run: npm t
+
+      - name: Size
+        run: npx size-limit
