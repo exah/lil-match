@@ -37,17 +37,19 @@ let output: string = match(input)
   .exhaustive('Unhandled input')
 ```
 
+## 📦 Exports
+
+Two functions [`match`](#matchinput) and [`when`](#whenguard).
+
+```ts
+import { match, when } from 'lil-match'
+```
+
 ## 📖 Docs
 
 ### `match(input)`
 
 Returns an object based on `input` with methods for chaining. Use [`.with`](#withpattern-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
-
-#### Exports
-
-```ts
-import { match } from 'lil-match'
-```
 
 #### Params
 
@@ -76,12 +78,12 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenpredicate). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
+Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
 
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenpredicate).
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard).
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
@@ -166,7 +168,7 @@ let output = match(input)
 
 ##### Custom type guard
 
-Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenpredicate) and pass it as a pattern value to validate the input.
+Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenguard) and pass it as a pattern value to validate the input.
 
 ```ts
 import { match, when } from 'lil-match'
@@ -330,12 +332,6 @@ let output: 'something' | 'nothing' = match(input)
 ### `when(guard)`
 
 Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value of [`.with`](#withpattern-callbackmatch) to narrow the input type.
-
-#### Exports
-
-```ts
-import { match } from 'lil-match'
-```
 
 #### Params
 
