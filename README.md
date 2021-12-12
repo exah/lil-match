@@ -310,17 +310,18 @@ let output: null = match(input).otherwise((unmatched) => {
 })
 ```
 
-##### Impossible to call when all cases are matched
+##### All statically analysed conditions are handled
 
 ```ts
 let input: { text: 'something' } | { text: 'nothing' }
 
-let output: 'something' | 'nothing' = match(input)
+let output: 'something' | 'nothing' | '🤷‍♂️' = match(input)
   .with({ text: 'something' }, (res) => res.text)
   .with({ text: 'nothing' }, (res) => res.text)
-  // Impossible to call because all conditions are matched
-  // .otherwise((_) => '🤷‍♂️')
-  .run()
+  .otherwise((unmatched) => {
+    console.log(unmatched) // will have `never` type
+    return '🤷‍♂️' as const
+  })
 ```
 
 ### `when(guard)`
