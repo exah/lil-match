@@ -41,7 +41,7 @@ let output: string = match(input)
 
 ### `match(input)`
 
-Returns an object based on `input` with methods for chaining. Use [`.with`](#withpattern-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+Returns an object based on `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
 
 #### Params
 
@@ -50,7 +50,7 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 
 #### Returns object
 
-- [`.with`](#withpattern-callbackmatch)
+- [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
 - [`.run`](#run)
 - [`.exhaustive`](#exhaustiveerrormessage)
@@ -80,7 +80,7 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 
 #### Returns object
 
-- [`.with`](#withpattern-callbackmatch)
+- [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
 - [`.run`](#run)
 - [`.exhaustive`](#exhaustiveerrormessage)
@@ -184,7 +184,7 @@ let output: string = match(input)
 
 ### `.run()`
 
-Execute [`match`](#matchinput) chain and return result. If all cases are matched result value will be exactly what was returned in the callback of [`.with`](#withpattern-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
+Execute [`match`](#matchinput) chain and return result. If all cases are matched result value will be exactly what was returned in the callback of [`.with`](#withpatterns-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
 
 #### Params
 
@@ -192,7 +192,7 @@ The method does not accept any arguments.
 
 #### Returns
 
-The output of [`match`](#matchinput) chain. Can be optional if not all the conditions have been matched using [`.with`](#withpattern-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or to handle unknown cases.
+The output of [`match`](#matchinput) chain. Can be optional if not all the conditions have been matched using [`.with`](#withpatterns-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or to handle unknown cases.
 
 #### Examples
 
@@ -227,7 +227,7 @@ let output: undefined = match(input).run()
 
 ### `.exhaustive(errorMessage)`
 
-Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check. Plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpattern-callbackmatch). This method is designed to check strongly typed cases.
+Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check. Plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpatterns-callbackmatch). This method is designed to check strongly typed cases.
 
 #### Params
 
