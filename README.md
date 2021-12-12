@@ -4,7 +4,7 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 270 B when minified & gziped
+- [x] Only 238 B when minified & gziped
 - [x] Designed for `TypeScript` projects
 - [x] No dependencies
 
@@ -72,7 +72,7 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
+Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard). Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
 
 #### Params
 
@@ -162,7 +162,7 @@ let output = match(input)
 
 ##### Custom type guard
 
-Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenguard) and pass it as a pattern value to validate the input.
+Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenguard) and pass it as a pattern value to narrow the input type.
 
 ```ts
 import { match, when } from 'lil-match'

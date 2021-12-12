@@ -1,6 +1,6 @@
 {
   "name": "lil-match",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Super small pattern matching library for TS projects",
   "type": "module",
   "main": "./mod.js",
