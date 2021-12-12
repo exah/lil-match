@@ -77,7 +77,7 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard).
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or [`when`](#whenguard) with [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
