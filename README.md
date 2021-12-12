@@ -331,7 +331,7 @@ let output: 'something' | 'nothing' = match(input)
 
 ### `when(guard)`
 
-Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value of [`.with`](#withpattern-callbackmatch) to narrow the input type.
+Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value of [`.with`](#withpatterns-callbackmatch) to narrow the input type.
 
 #### Params
 
@@ -345,7 +345,7 @@ Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrow
 
 #### Returns function
 
-Use returned function as a pattern value of [`.with`](#withpattern-callbackmatch) to validate the input.
+Use returned function as a pattern value of [`.with`](#withpatterns-callbackmatch) to validate the input.
 
 #### Examples
 
