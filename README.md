@@ -15,7 +15,7 @@ npm i -S lil-match
 ```
 
 ```sh
-npm add lil-match
+yarn add lil-match
 ```
 
 ## 💻 Use
