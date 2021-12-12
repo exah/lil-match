@@ -572,7 +572,7 @@ describe('match constructor', () => {
   test('run', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -580,7 +580,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: String } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -588,7 +588,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -629,7 +629,7 @@ describe('match constructor', () => {
   test('undefined on unhandled', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -637,7 +637,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: String } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -664,7 +664,7 @@ describe('match constructor', () => {
   test('otherwise', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -672,7 +672,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: String } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -680,7 +680,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -712,7 +712,7 @@ describe('match constructor', () => {
   test('exhaustive', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -720,7 +720,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: String } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -728,7 +728,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: Boolean } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Boolean) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'boolean'>(res.data.type)
           expectType<boolean>(res.data.value)
@@ -769,7 +769,7 @@ describe('match constructor', () => {
   test('not exhaustive', () => {
     function fn(input: Result) {
       const result = match(input)
-        .with({ type: Type.READY, data: { value: Number } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(Number) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'number'>(res.data.type)
           expectType<number>(res.data.value)
@@ -777,7 +777,7 @@ describe('match constructor', () => {
 
           return res.data.type
         })
-        .with({ type: Type.READY, data: { value: String } }, (res) => {
+        .with({ type: Type.READY, data: { value: is(String) } }, (res) => {
           expectType<Type.READY>(res.type)
           expectType<'string'>(res.data.type)
           expectType<string>(res.data.value)
@@ -802,15 +802,15 @@ describe('match constructor', () => {
   test('multiple pattern of primitives', () => {
     function fn(input: string | symbol | number | bigint | boolean) {
       const result = match(input)
-        .with(Number, BigInt, (res) => {
+        .with(is(Number), is(BigInt), (res) => {
           expectType<number | bigint>(res)
           return `number-like: ${res}` as const
         })
-        .with(Boolean, (res) => {
+        .with(is(Boolean), (res) => {
           expectType<boolean>(res)
           return `boolean: ${res}` as const
         })
-        .with(String, Symbol, (res) => {
+        .with(is(String), is(Symbol), (res) => {
           expectType<string | symbol>(res)
           return `string | symbol: ${res.toString()}` as const
         })

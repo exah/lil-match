@@ -42,23 +42,13 @@ type DeepExclude<T, U> = IsOpaque<T> extends true
     : never
   : Exclude<T, U>
 
-interface Guard<Input, Type extends Input> {
-  (input: Input): input is Type
+interface Guard<Input, Type = Input> {
+  (input: Input): input is Type extends Input ? Type : Input
 }
 
 type Pattern<Input> =
-  | Guard<Input, Input>
-  | (Input extends number
-      ? Input | NumberConstructor
-      : Input extends string
-      ? Input | StringConstructor
-      : Input extends boolean
-      ? Input | BooleanConstructor
-      : Input extends symbol
-      ? Input | SymbolConstructor
-      : Input extends bigint
-      ? Input | BigIntConstructor
-      : Input extends Primitives
+  | Guard<Input>
+  | (Input extends Primitives
       ? Input
       : Input extends object
       ? { [K in keyof Input]?: Pattern<Input[K]> }
@@ -66,16 +56,6 @@ type Pattern<Input> =
 
 type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? P
-  : Pattern extends NumberConstructor
-  ? number
-  : Pattern extends StringConstructor
-  ? string
-  : Pattern extends BooleanConstructor
-  ? boolean
-  : Pattern extends SymbolConstructor
-  ? symbol
-  : Pattern extends BigIntConstructor
-  ? bigint
   : Pattern extends Primitives
   ? Pattern
   : Pattern extends object
@@ -84,13 +64,17 @@ type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
 
 interface NonExhaustive<_> {}
 
+type i = string | symbol | number | bigint | boolean
+type p = Guard<number | bigint, bigint>
+type a = DeepExtract<i, Invert<p>>
+
 interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
     callback: (result: R) => O,
   ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
   with<
-    P extends [Pattern<Input>, ...Pattern<Input>[]],
+    P extends Pattern<Input>[],
     O,
     I = Invert<P[number]>,
     R = DeepExtract<Input, I>,
@@ -107,9 +91,32 @@ interface Match<Input, Next = Input, Output = never> {
 }
 
 export declare function is<
-  Input,
-  Type extends abstract new (...args: any) => any,
+  T extends
+    | NumberConstructor
+    | StringConstructor
+    | BooleanConstructor
+    | SymbolConstructor
+    | BigIntConstructor
+    | ObjectConstructor
+    | (abstract new (...args: any) => any),
 >(
-  type: Type,
-): (input: Input) => input is Input extends InstanceType<Type> ? Input : never
+  type: T,
+): (
+  input: unknown,
+) => input is T extends NumberConstructor
+  ? number
+  : T extends StringConstructor
+  ? string
+  : T extends BooleanConstructor
+  ? boolean
+  : T extends SymbolConstructor
+  ? symbol
+  : T extends BigIntConstructor
+  ? bigint
+  : T extends ObjectConstructor
+  ? object
+  : T extends abstract new (...args: any) => infer C
+  ? C
+  : never
+
 export declare function match<Input>(input: Input): Match<Input>
