@@ -1,6 +1,6 @@
 import { expectType } from 'tsd'
 import { Opaque } from 'type-fest'
-import { match } from '.'
+import { match, is } from '.'
 
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
@@ -958,9 +958,14 @@ describe('guards', () => {
     name: string
   }
 
-  interface Post {
+  class Post {
     id: UUID
     title: string
+
+    constructor(title: string) {
+      this.id = id
+      this.title = title
+    }
   }
 
   type Input = { data: Author } | { data: Post } | number[]
@@ -974,15 +979,6 @@ describe('guards', () => {
     )
   }
 
-  function isPost(input: unknown): input is Post {
-    return (
-      typeof input === 'object' &&
-      input != null &&
-      'id' in input &&
-      'title' in input
-    )
-  }
-
   test('run', () => {
     function fn(input: Input) {
       const result = match(input)
@@ -992,7 +988,7 @@ describe('guards', () => {
 
           return `Author: ${res.data.name}` as const
         })
-        .with({ data: isPost }, (res) => {
+        .with({ data: is(Post) }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.title)
 
@@ -1011,7 +1007,7 @@ describe('guards', () => {
     }
 
     expect(fn({ data: { id, name: 'John' } })).toBe('Author: John')
-    expect(fn({ data: { id, title: 'Bar' } })).toBe('Post: Bar')
+    expect(fn({ data: new Post('Bar') })).toBe('Post: Bar')
     expect(fn([1, 2, 3])).toBe('Array: 1, 2, 3')
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
