@@ -4,7 +4,7 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 270 B when minified & gziped
+- [x] Only 259 B when minified & gziped
 - [x] Designed for `TypeScript` projects
 - [x] No dependencies
 
@@ -48,7 +48,9 @@ Returns an object based on `input` with methods for chaining. Use [`.with`](#wit
 - `input`
   - a value you'll be testing
 
-#### Returns object
+#### Returns
+
+Object with methods:
 
 - [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
@@ -68,7 +70,7 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns, or custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates). Use `callback` to access matched value. Returns an object with all [match](#matchinput) methods for chaining.
+Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns, or custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function. Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
 
 #### Params
 
@@ -78,7 +80,9 @@ Create a match pattern based on `input`. The pattern can be an object, primitive
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
 
-#### Returns object
+#### Returns
+
+Object with methods:
 
 - [`.with`](#withpatterns-callbackmatch)
 - [`.otherwise`](#otherwisecallbackunmatched)
@@ -156,7 +160,7 @@ let output = match(input)
 
 ##### Custom type guard
 
-Define [type guard function](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value to validate the input.
+Define [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function and pass it as a pattern to narrow the input type.
 
 ```ts
 interface User {
