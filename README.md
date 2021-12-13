@@ -160,13 +160,9 @@ let output = match(input)
   .exhaustive('Unhandled input')
 ```
 
-##### Custom type guard
-
-Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) using [`when`](#whenguard) and pass it as a pattern value to narrow the input type.
+##### Custom type guard using [`when`](#whenguard)
 
 ```ts
-import { match, when } from 'lil-match'
-
 interface User {
   id: number
   name: string
@@ -325,15 +321,17 @@ let output: 'something' | 'nothing' = match(input)
 
 ### `when(guard)`
 
-Create custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) and pass it as a pattern value of [`.with`](#withpatterns-callbackmatch) to narrow the input type.
+Creates [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function for narrowing the input type inside [`.with`](#withpatterns-callbackmatch) method.
 
 #### Params
 
 - `guard(input)`
 
+  **TL;DR** type guard function look like this:
+
   ```ts
-  interface Guard<Input, Type extends Input> {
-    (input: Input): input is Type
+  function isSomething(input: unknown): input is 'something' {
+    return input === 'something'
   }
   ```
 
@@ -346,20 +344,20 @@ Use returned function as a pattern value of [`.with`](#withpatterns-callbackmatc
 ##### Create a custom guard
 
 ```ts
-function isSomething(input: unknown): input is 'something' {
-  return input === 'something')
+interface User {
+  name: string
 }
-```
 
-##### Use build-in type guard
+function isUser(input: unknown): input is User {
+  return input != null && typeof input === 'object' && 'name' in input
+}
 
-```ts
-let input: number[] | null | undefined
+let input: User | null
 
 let output: string = match(input)
-  .with(when(Array.isArray), (res) => `Array of: ${res}`)
-  .with(null, undefined, (res) => `Nullable`)
-  .exhaustive('Unhandled input')
+  .with(when(isUser), (res) => `👋 ${res.name}`)
+  .with(null, (res) => `🤷‍♂️`)
+  .run()
 ```
 
 ## 🙋‍♂️ FAQ
