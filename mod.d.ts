@@ -1,3 +1,5 @@
+declare const TAG: unique symbol
+
 type Primitives = number | boolean | string | symbol | bigint | undefined | null
 
 type IsOpaque<T> = T extends object
@@ -47,7 +49,7 @@ interface Guard<Input, Type extends Input> {
 }
 
 interface When<Input, Type extends Input> extends Guard<Input, Type> {
-  [tag: symbol]: 1
+  [TAG]: 1
 }
 
 type Pattern<Input> =
@@ -62,15 +64,13 @@ type Pattern<Input> =
       ? Input | SymbolConstructor
       : Input extends bigint
       ? Input | BigIntConstructor
-      : Input extends Primitives
-      ? Input
       : Input extends object
       ?
           | { [K in keyof Input]?: Pattern<Input[K]> }
           | (abstract new (...args: any[]) => Input)
-      : never)
+      : Input)
 
-type Invert<Pattern> = Pattern extends When<infer _, infer P>
+type Invert<Pattern> = Pattern extends When<infer I, infer P>
   ? P
   : Pattern extends NumberConstructor
   ? number
@@ -84,11 +84,9 @@ type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? bigint
   : Pattern extends abstract new (...args: any[]) => infer C
   ? C
-  : Pattern extends Primitives
-  ? Pattern
   : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
-  : never
+  : Pattern
 
 interface NonExhaustive<_> {}
 
@@ -96,7 +94,7 @@ interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
     callback: (result: R) => O,
-  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
+  ): Match<Input, DeepExclude<Next, I>, O | Output>
   with<
     P extends [Pattern<Input>, ...Pattern<Input>[]],
     O,
@@ -104,7 +102,7 @@ interface Match<Input, Next = Input, Output = never> {
     R = DeepExtract<Input, I>,
   >(
     ...args: [...patterns: P, callback: (result: R) => O]
-  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
+  ): Match<Input, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
   otherwise: [Next] extends [never]
     ? never

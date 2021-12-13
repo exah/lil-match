@@ -844,14 +844,7 @@ describe('match constructor', () => {
 
   test('multiple pattern of primitives', () => {
     function fn(
-      input:
-        | string
-        | symbol
-        | number
-        | bigint
-        | boolean
-        | number[]
-        | [string, string],
+      input: string | symbol | number | bigint | boolean | [string, string],
     ) {
       const result = match(input)
         .with(Number, BigInt, (res) => {
@@ -870,10 +863,6 @@ describe('match constructor', () => {
           expectType<[string, string]>(res)
           return `tuple: [${res[0]}, ${res[1]}]` as const
         })
-        .with(Array, (res) => {
-          expectType<number[]>(res)
-          return `array: ${res}` as const
-        })
         .exhaustive('Unhandled input')
 
       type Result =
@@ -881,7 +870,6 @@ describe('match constructor', () => {
         | `boolean: ${boolean}`
         | `string | symbol: ${string | boolean}`
         | `tuple: [${string}, ${string}]`
-        | `array: ${string}`
 
       expectType<Result>(result)
       return result
@@ -892,7 +880,6 @@ describe('match constructor', () => {
     expect(fn('text')).toBe(`string | symbol: text`)
     expect(fn(Symbol('unique'))).toBe(`string | symbol: Symbol(unique)`)
     expect(fn(['one', 'two'])).toBe(`tuple: [one, two]`)
-    expect(fn([1, 2, 3])).toBe(`array: 1,2,3`)
     expect(fn(true)).toBe(`boolean: true`)
   })
 })
