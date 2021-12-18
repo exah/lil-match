@@ -70,7 +70,9 @@ type Pattern<Input> =
           | (abstract new (...args: any[]) => Input)
       : Input)
 
-type Invert<Pattern> = Pattern extends When<infer I, infer P>
+type WhenPattern<Input> = When<Input, Input> | Pattern<Input>
+
+type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? P
   : Pattern extends NumberConstructor
   ? number
@@ -91,12 +93,17 @@ type Invert<Pattern> = Pattern extends When<infer I, infer P>
 interface NonExhaustive<_> {}
 
 interface Match<Input, Next = Input, Output = never> {
-  with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
+  with<
+    P extends WhenPattern<Input>,
+    O,
+    I = Invert<P>,
+    R = DeepExtract<Input, I>,
+  >(
     pattern: P,
     callback: (result: R) => O,
   ): Match<Input, DeepExclude<Next, I>, O | Output>
   with<
-    P extends [Pattern<Input>, ...Pattern<Input>[]],
+    P extends WhenPattern<Input>[],
     O,
     I = Invert<P[number]>,
     R = DeepExtract<Input, I>,
@@ -115,4 +122,9 @@ interface Match<Input, Next = Input, Output = never> {
 export declare function when<Input, Type extends Input>(
   guard: Guard<Input, Type>,
 ): When<Input, Type>
+
+export declare function list<Input, Type extends Input>(
+  pattern: Guard<Input, Type> | Pattern<Input>,
+): When<Input, Type>[]
+
 export declare function match<Input>(input: Input): Match<Input>

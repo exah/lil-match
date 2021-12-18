@@ -1,6 +1,6 @@
 import { expectType } from 'tsd'
 import { Opaque } from 'type-fest'
-import { match, when } from '.'
+import { match, when, list } from '.'
 
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
@@ -1056,5 +1056,33 @@ describe('when', () => {
     expect(fn([1, 2, 3])).toBe('Array: 1, 2, 3')
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+})
+
+describe('list', () => {
+  test('exhaustive', () => {
+    interface User {
+      name: string
+    }
+
+    function isUser(input: unknown): input is User {
+      return input != null && typeof input === 'object' && 'name' in input
+    }
+
+    function fn(input: User | User[]) {
+      const result = match(input)
+        .with(when(isUser), (res) => `👋 ${res.name}` as const)
+        .with(list(isUser), (res) => `👯‍♀️ ${res.length}` as const)
+        .exhaustive(ERROR)
+
+      expectType<`👋 ${string}` | `👯‍♀️ ${number}`>(result)
+      return result
+    }
+
+    expect(fn({ name: 'John' })).toBe('👋 John')
+    expect(fn([])).toBe('👯‍♀️ 0')
+    expect(fn([{ name: 'John' }, { name: 'Kate' }])).toBe('👯‍♀️ 2')
+    // @ts-expect-error
+    expect(() => fn([{}])).toThrow(new Error(ERROR))
   })
 })

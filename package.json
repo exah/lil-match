@@ -30,8 +30,8 @@
   "size-limit": [
     {
       "path": "./mod.js",
-      "import": "{ match }",
-      "limit": "270B"
+      "import": "{ match, when, list }",
+      "limit": "280B"
     }
   ],
   "jest": {

@@ -4,7 +4,7 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 238 B when minified & gziped
+- [x] Only 280 B when minified & gziped
 - [x] Designed for `TypeScript` projects
 - [x] No dependencies
 

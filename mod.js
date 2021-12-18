@@ -24,6 +24,12 @@ export let when = (fn) => {
   return fn
 }
 
+export let list = (pattern) =>
+  when(
+    (input) =>
+      is(Array, input) && (input.length === 0 || compare(input)([pattern])),
+  )
+
 export let match = (input, output = TAG) => ({
   with(...patterns) {
     let callback = patterns.pop()
