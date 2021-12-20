@@ -31,7 +31,22 @@
     {
       "path": "./mod.js",
       "import": "{ match, when, list }",
-      "limit": "280B"
+      "limit": "285B"
+    },
+    {
+      "path": "./mod.js",
+      "import": "{ match }",
+      "limit": "240B"
+    },
+    {
+      "path": "./mod.js",
+      "import": "{ when }",
+      "limit": "25B"
+    },
+    {
+      "path": "./mod.js",
+      "import": "{ list }",
+      "limit": "180B"
     }
   ],
   "jest": {
