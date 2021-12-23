@@ -52,6 +52,10 @@ interface When<Input, Type extends Input> extends Guard<Input, Type> {
   [TAG]: 1
 }
 
+interface Constructor<T> {
+  new (...args: any[]): T
+}
+
 type Pattern<Input> =
   | When<Input, Input>
   | (Input extends number
@@ -65,12 +69,8 @@ type Pattern<Input> =
       : Input extends bigint
       ? Input | BigIntConstructor
       : Input extends object
-      ?
-          | { [K in keyof Input]?: Pattern<Input[K]> }
-          | (abstract new (...args: any[]) => Input)
+      ? { [K in keyof Input]?: Pattern<Input[K]> } | Constructor<Input>
       : Input)
-
-type WhenPattern<Input> = When<Input, Input> | Pattern<Input>
 
 type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? P
@@ -84,7 +84,7 @@ type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? symbol
   : Pattern extends BigIntConstructor
   ? bigint
-  : Pattern extends abstract new (...args: any[]) => infer C
+  : Pattern extends Constructor<infer C>
   ? C
   : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
@@ -93,17 +93,12 @@ type Invert<Pattern> = Pattern extends When<infer _, infer P>
 interface NonExhaustive<_> {}
 
 interface Match<Input, Next = Input, Output = never> {
-  with<
-    P extends WhenPattern<Input>,
-    O,
-    I = Invert<P>,
-    R = DeepExtract<Input, I>,
-  >(
+  with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
     callback: (result: R) => O,
   ): Match<Input, DeepExclude<Next, I>, O | Output>
   with<
-    P extends WhenPattern<Input>[],
+    P extends Pattern<Input>[],
     O,
     I = Invert<P[number]>,
     R = DeepExtract<Input, I>,
