@@ -4,9 +4,9 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 280 B when minified & gziped
-- [x] Designed for `TypeScript` projects
-- [x] No dependencies
+- [x] Only **280 B** when minified & gziped
+- [x] Designed for **TypeScript** projects
+- [x] Zero dependencies
 
 ## 📦 Install
 
@@ -37,18 +37,22 @@ let output: string = match(input)
 
 ## 📖 Docs
 
-The package only exports two functions [`match`](#matchinput) and [`when`](#whenguard).
+The package exports three functions [`match`](#matchinput), [`when`](#whenguard), and [`list`](#listpattern).
 
-<pre><code class='language-js'>import { <a href='#matchinput'>match</a>, <a href='#whenguard'>when</a> } from 'lil-match'</code></pre>
+<pre><code class='language-js'>import { <a href='#matchinput'>match</a>, <a href='#whenguard'>when</a>, <a href='#listpattern'>list</a> } from 'lil-match'</code></pre>
+
+The total weight of the imports is **280KB**.
 
 ### `match(input)`
 
-Creates an object based on `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+Creates an interface based on type of the `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain using [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+
+The weight of the individual import is **238 B**.
 
 #### Params
 
 - `input`
-  - a value you'll be testing
+  - strongly typed value, can be anything
 
 #### Returns
 
@@ -72,12 +76,12 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or create [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function using [`when`](#whenguard). Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
+Use this method to create a match pattern for the `input`. The pattern can be a literal value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, [`when`](#whenguard) type guard function, or [`list`](#listpattern) guard function. Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
 
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or [`when`](#whenguard) with [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or [`when`](#whenguard) with [type guard][using-type-predicates][^1] function
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
@@ -321,19 +325,13 @@ let output: 'something' | 'nothing' = match(input)
 
 ### `when(guard)`
 
-Creates [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function for narrowing the input type inside [`.with`](#withpatterns-callbackmatch) method.
+Creates [type guard][using-type-predicates][^1] function for narrowing the input type inside [`.with`](#withpatterns-callbackmatch) method.
+
+The weight of the individual import is **24 B**.
 
 #### Params
 
-- `guard(input)`
-
-  **TL;DR** type guard function look like this:
-
-  ```ts
-  function isSomething(input: unknown): input is 'something' {
-    return input === 'something'
-  }
-  ```
+- `guard(input)` - type guard function[^1]
 
 #### Returns function
 
@@ -359,6 +357,12 @@ let output: string = match(input)
   .with(null, (res) => `🤷‍♂️`)
   .run()
 ```
+
+### `list(pattern)`
+
+TODO
+
+The weight of the individual import is **175 B**, but shares most of the code with [`match`](#matchinput).
 
 ## 🙋‍♂️ FAQ
 
@@ -469,3 +473,15 @@ No, the library depends on [rest parameters](https://developer.mozilla.org/en-US
 ---
 
 MIT © John Grishin
+
+---
+
+[^1]: Signature of [type guard][using-type-predicates] function:
+
+    ```ts
+    function isSomething(input: unknown): input is 'something' {
+      return input === 'something'
+    }
+    ```
+
+[using-type-predicates]: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
