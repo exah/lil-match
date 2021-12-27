@@ -106,9 +106,7 @@ interface Match<Input, Next = Input, Output = never> {
     ...args: [...patterns: P, callback: (result: R) => O]
   ): Match<Input, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
-  otherwise: [Next] extends [never]
-    ? never
-    : <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
+  otherwise: <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
   exhaustive: [Next] extends [never]
     ? (errorMessage: string) => Output
     : NonExhaustive<Next>

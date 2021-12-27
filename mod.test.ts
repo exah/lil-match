@@ -950,6 +950,30 @@ describe('multi pattern union', () => {
     expect(fn(Type.FAILED)).toBe(null)
   })
 
+  test('otherwise never', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(LITERAL, Type.PENDING, Type.READY, Type.FAILED, (res) => {
+          expectType<LITERAL | Type.PENDING | Type.READY | Type.FAILED>(res)
+          return res
+        })
+        .otherwise((res) => {
+          expectType<never>(res)
+          return null
+        })
+
+      expectType<LITERAL | Type | null>(result)
+      return result
+    }
+
+    expect(fn(LITERAL)).toBe(LITERAL)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(2)
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(null)
+  })
+
   test('exhaustive', () => {
     function fn(input: LITERAL | Type) {
       const result = match(input)
