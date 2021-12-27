@@ -32,7 +32,7 @@
       "name": "exports",
       "path": "./mod.js",
       "import": "{ match, when, list }",
-      "limit": "285B"
+      "limit": "280B"
     },
     {
       "name": "match",
