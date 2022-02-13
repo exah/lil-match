@@ -361,7 +361,7 @@ let output: string = match(input)
 
 ### `list(pattern)`
 
-TODO
+Match an array with pattern. Will check against pattern the first element. Please, **note** if array will be empty a pattern will be matched anyway.
 
 The weight of the individual import is **175 B**, but shares most of the code with [`match`](#matchinput).
 
