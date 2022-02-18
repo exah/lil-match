@@ -1,4 +1,5 @@
 import { expectType } from 'tsd'
+import { describe, test, expect } from 'vitest'
 import { Opaque } from 'type-fest'
 import { match, when, list } from '.'
 
