@@ -32,13 +32,13 @@
       "name": "exports",
       "path": "./mod.js",
       "import": "{ match, when, list }",
-      "limit": "280B"
+      "limit": "300B"
     },
     {
       "name": "match",
       "path": "./mod.js",
       "import": "{ match }",
-      "limit": "240B"
+      "limit": "270B"
     },
     {
       "name": "when",
@@ -50,7 +50,7 @@
       "name": "list",
       "path": "./mod.js",
       "import": "{ list }",
-      "limit": "180B"
+      "limit": "200B"
     }
   ],
   "devDependencies": {

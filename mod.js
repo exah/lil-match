@@ -9,11 +9,11 @@ let compare = (input) => (pattern) => {
     return pattern[TAG] ? pattern(input) : is(pattern, input)
   }
 
-  if (is(Object, pattern)) {
-    return (
-      is(Object, input) &&
-      Object.keys(pattern).every((key) => compare(input[key])(pattern[key]))
-    )
+  if (is(Object, pattern) && is(Object, input)) {
+    let keys = Object.keys(pattern)
+    return keys.length
+      ? keys.every((key) => compare(input[key])(pattern[key]))
+      : !Object.keys(input).length
   }
 
   return Object.is(input, pattern)
@@ -25,10 +25,7 @@ export let when = (fn) => {
 }
 
 export let list = (pattern) =>
-  when(
-    (input) =>
-      is(Array, input) && (input.length === 0 || compare(input)([pattern])),
-  )
+  when((input) => is(Array, input) && compare(input)([pattern]))
 
 export let match = (input, output = TAG) => ({
   with(...patterns) {

@@ -4,7 +4,7 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only **280 B** when minified & gziped
+- [x] Only **300 B** when minified & gziped
 - [x] Designed for **TypeScript** projects
 - [x] Zero dependencies
 
@@ -47,7 +47,7 @@ The total weight of the imports is **280KB**.
 
 Creates an interface based on type of the `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain using [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
 
-The weight of the individual import is **238 B**.
+The weight of the individual import is **270 B**.
 
 #### Params
 
@@ -192,7 +192,7 @@ let output: string = match(input)
 
 ### `.run()`
 
-Execute [`match`](#matchinput) chain and return result. If all cases are matched result value will be exactly what was returned in the callback of [`.with`](#withpatterns-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
+Execute [`match`](#matchinput) chain and return result. When all conditions have been matched, the result value will be exactly what was returned in the callback of the [`.with`](#withpatterns-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
 
 #### Params
 
@@ -200,7 +200,9 @@ The method does not accept any arguments.
 
 #### Returns
 
-The output of [`match`](#matchinput) chain. Can be optional if not all the conditions have been matched using [`.with`](#withpatterns-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or to handle unknown cases.
+The function returns the output of the [`match`](#matchinput) chain.
+
+It can be optional if not all the conditions have been matched using [`.with`](#withpatterns-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or handle unknown cases.
 
 #### Examples
 
@@ -235,7 +237,7 @@ let output: undefined = match(input).run()
 
 ### `.exhaustive(errorMessage)`
 
-Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check. Plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpatterns-callbackmatch). This method is designed to check strongly typed cases.
+Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors, it will show TS error during the type check. Plus, it will throw an error if the unhandled case is passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpatterns-callbackmatch). This method is designed to check strongly typed cases.
 
 #### Params
 
@@ -245,7 +247,9 @@ Use the `exhaustive` method to enforce matching in every possible case. If [`mat
 
 #### Returns
 
-The output of [`match`](#matchinput) chain. Use [`.run`](#run) for an optional result, or [`.otherwise`](#otherwisecallbackunmatched) if you need to handle an unknown condition.
+The function returns the output of the [`match`](#matchinput) chain.
+
+Alternatively, use [`.run`](#run) for an optional result or [`.otherwise`](#otherwisecallbackunmatched) if you need to handle an unknown condition.
 
 #### Examples
 
@@ -274,7 +278,7 @@ let output: 'something' = match(input)
 
 ### `.otherwise(callback(unmatched))`
 
-Just like [`.run`](#run), `.otherwise` execute [`match`](#matchinput) chain and returns the result, but can be used with a callback to handle `unknown` value. The return value of callback will be combined with the output type of the [`match`](#matchinput) chain. It's not possible to call `.otherwise` if Every case is handled.
+Just like [`.run`](#run), `.otherwise` execute [`match`](#matchinput) chain and returns the result, but can be used with a callback to handle `unknown` value. The callback return value will be combined with the output type of the [`match`](#matchinput) chain. It's impossible to call `.otherwise` if Every case is handled.
 
 #### Params
 
@@ -361,21 +365,21 @@ let output: string = match(input)
 
 ### `list(pattern)`
 
-Match an array with pattern. Will check against pattern the first element. Please, **note** if array will be empty a pattern will be matched anyway.
+Creates [type guard][using-type-predicates][^1] function for narrowing the input type based on array inside [`.with`](#withpatterns-callbackmatch) method. Returned function does not check every element, only the first one.
 
-The weight of the individual import is **175 B**, but shares most of the code with [`match`](#matchinput).
+The weight of the individual import is **200 B** but shares most of the code with [`match`](#matchinput).
 
 ## 🙋‍♂️ FAQ
 
 ### How it's different from the other solutions?
 
-The difference is mostly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny footprint of the library means more understandable code, simpler types, and almost no effect on your app bundle size.
+The difference is mainly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny library footprint means more understandable code, more straightforward types, and almost no effect on your app bundle size.
 
 If your project requires advanced pattern matching features, please have a look at amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) by [@gvergnaud](https://github.com/gvergnaud).
 
 ### Is it better than native `switch` & `case`?
 
-It's not better, it's just a bit different. In my opinion, the result code is cleaner, especially when you need to handle nested unions, for example:
+It's not better. It's just a bit different. In my opinion, the result code is cleaner, especially when you need to handle nested unions, for example:
 
 ```ts
 let input:

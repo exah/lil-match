@@ -1094,18 +1094,19 @@ describe('list', () => {
       return input != null && typeof input === 'object' && 'name' in input
     }
 
-    function fn(input: User | User[]) {
+    function fn(input: User | User[] | []) {
       const result = match(input)
         .with(when(isUser), (res) => `👋 ${res.name}` as const)
         .with(list(isUser), (res) => `👯‍♀️ ${res.length}` as const)
+        .with([], () => `🤷‍♂️` as const)
         .exhaustive(ERROR)
 
-      expectType<`👋 ${string}` | `👯‍♀️ ${number}`>(result)
+      expectType<`👋 ${string}` | `👯‍♀️ ${number}` | `🤷‍♂️`>(result)
       return result
     }
 
     expect(fn({ name: 'John' })).toBe('👋 John')
-    expect(fn([])).toBe('👯‍♀️ 0')
+    expect(fn([])).toBe('🤷‍♂️')
     expect(fn([{ name: 'John' }, { name: 'Kate' }])).toBe('👯‍♀️ 2')
     // @ts-expect-error
     expect(() => fn([{}])).toThrow(new Error(ERROR))
