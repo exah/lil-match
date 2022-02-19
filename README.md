@@ -4,9 +4,9 @@
 
 > Super small pattern matching library for TS projects
 
-- [x] Only 259 B when minified & gziped
-- [x] Designed for `TypeScript` projects
-- [x] No dependencies
+- [x] Only **300 B** when minified & gziped
+- [x] Designed for **TypeScript** projects
+- [x] Zero dependencies
 
 ## 📦 Install
 
@@ -21,8 +21,6 @@ yarn add lil-match
 ## 💻 Use
 
 ```ts
-import { match } from 'lil-match'
-
 type Response =
   | { type: 'pending' }
   | { type: 'failed'; error: Error }
@@ -39,14 +37,22 @@ let output: string = match(input)
 
 ## 📖 Docs
 
+The package exports three functions [`match`](#matchinput), [`when`](#whenguard), and [`list`](#listpattern).
+
+<pre><code class='language-js'>import { <a href='#matchinput'>match</a>, <a href='#whenguard'>when</a>, <a href='#listpattern'>list</a> } from 'lil-match'</code></pre>
+
+The total weight of the imports is **280KB**.
+
 ### `match(input)`
 
-Returns an object based on `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain with [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+Creates an interface based on type of the `input` with methods for chaining. Use [`.with`](#withpatterns-callbackmatch) method to create patterns, close the chain using [`.otherwise`](#otherwisecallbackunmatched), [`.run`](#run), or [`.exhaustive`](#exhaustiveerrormessage) methods.
+
+The weight of the individual import is **270 B**.
 
 #### Params
 
 - `input`
-  - a value you'll be testing
+  - strongly typed value, can be anything
 
 #### Returns
 
@@ -70,12 +76,12 @@ let output = match(input)
 
 ### `.with(...patterns, callback(match))`
 
-Create a match pattern based on `input`. The pattern can be an object, primitive value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors for creating wildcard patterns, or custom [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function. Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
+Use this method to create a match pattern for the `input`. The pattern can be a literal value, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, [`when`](#whenguard) type guard function, or [`list`](#listpattern) guard function. Use `callback` to access matched value. Returns an object with [match](#matchinput) methods for chaining.
 
 #### Params
 
 - `...patterns`
-  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, or [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
+  - can be an object, literal value, primitive, `Number`, `String`, `Boolean`, `Symbol`, `BigInt` constructors, class, or [`when`](#whenguard) with [type guard][using-type-predicates][^1] function
 - `callback(match)`
   - access matched value
   - returned value will be used for the output type of end of [`match`](#matchinput) chain
@@ -158,9 +164,7 @@ let output = match(input)
   .exhaustive('Unhandled input')
 ```
 
-##### Custom type guard
-
-Define [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) function and pass it as a pattern to narrow the input type.
+##### Custom type guard using [`when`](#whenguard)
 
 ```ts
 interface User {
@@ -180,15 +184,15 @@ function isUser(input: unknown): input is User {
 }
 
 let output: string = match(input)
-  .with({ data: isUser }, (res) => `User: ${res.data.name}`)
-  .with({ data: Array.isArray }, (res) => `Array of: ${res.data}`)
+  .with({ data: when(isUser) }, (res) => `User: ${res.data.name}`)
+  .with({ data: Array }, (res) => `Array of: ${res.data}`)
   .with({ data: 'literal' }, (res) => res.data)
   .exhaustive('Unhandled input')
 ```
 
 ### `.run()`
 
-Execute [`match`](#matchinput) chain and return result. If all cases are matched result value will be exactly what was returned in the callback of [`.with`](#withpatterns-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
+Execute [`match`](#matchinput) chain and return result. When all conditions have been matched, the result value will be exactly what was returned in the callback of the [`.with`](#withpatterns-callbackmatch) method. However, if even one case was not handled result will include `undefined`.
 
 #### Params
 
@@ -196,7 +200,9 @@ The method does not accept any arguments.
 
 #### Returns
 
-The output of [`match`](#matchinput) chain. Can be optional if not all the conditions have been matched using [`.with`](#withpatterns-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or to handle unknown cases.
+The function returns the output of the [`match`](#matchinput) chain.
+
+It can be optional if not all the conditions have been matched using [`.with`](#withpatterns-callbackmatch) patterns. Use [`.otherwise`](#otherwisecallbackunmatched) if you want to provide a fallback value or handle unknown cases.
 
 #### Examples
 
@@ -231,7 +237,7 @@ let output: undefined = match(input).run()
 
 ### `.exhaustive(errorMessage)`
 
-Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors it will show TS error during the type check. Plus it will throw an error if the unhandled case will be passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpatterns-callbackmatch). This method is designed to check strongly typed cases.
+Use the `exhaustive` method to enforce matching in every possible case. If [`match`](#matchinput) has any unhandled errors, it will show TS error during the type check. Plus, it will throw an error if the unhandled case is passed as input. This method returns strictly what has been returned using callback of [`.with`](#withpatterns-callbackmatch). This method is designed to check strongly typed cases.
 
 #### Params
 
@@ -241,7 +247,9 @@ Use the `exhaustive` method to enforce matching in every possible case. If [`mat
 
 #### Returns
 
-The output of [`match`](#matchinput) chain. Use [`.run`](#run) for an optional result, or [`.otherwise`](#otherwisecallbackunmatched) if you need to handle an unknown condition.
+The function returns the output of the [`match`](#matchinput) chain.
+
+Alternatively, use [`.run`](#run) for an optional result or [`.otherwise`](#otherwisecallbackunmatched) if you need to handle an unknown condition.
 
 #### Examples
 
@@ -270,7 +278,7 @@ let output: 'something' = match(input)
 
 ### `.otherwise(callback(unmatched))`
 
-Just like [`.run`](#run), `.otherwise` execute [`match`](#matchinput) chain and returns the result, but can be used with a callback to handle `unknown` value. The return value of callback will be combined with the output type of the [`match`](#matchinput) chain. It's not possible to call `.otherwise` if Every case is handled.
+Just like [`.run`](#run), `.otherwise` execute [`match`](#matchinput) chain and returns the result, but can be used with a callback to handle `unknown` value. The callback return value will be combined with the output type of the [`match`](#matchinput) chain. It's impossible to call `.otherwise` if Every case is handled.
 
 #### Params
 
@@ -306,30 +314,72 @@ let output: null = match(input).otherwise((unmatched) => {
 })
 ```
 
-##### Impossible to call when all cases are matched
+##### All statically analysed conditions are handled
 
 ```ts
 let input: { text: 'something' } | { text: 'nothing' }
 
-let output: 'something' | 'nothing' = match(input)
+let output: 'something' | 'nothing' | '🤷‍♂️' = match(input)
   .with({ text: 'something' }, (res) => res.text)
   .with({ text: 'nothing' }, (res) => res.text)
-  // Impossible to call because all conditions are matched
-  // .otherwise((_) => '🤷‍♂️')
+  .otherwise((unmatched) => {
+    console.log(unmatched) // will have `never` type
+    return '🤷‍♂️' as const
+  })
+```
+
+### `when(guard)`
+
+Creates [type guard][using-type-predicates][^1] function for narrowing the input type inside [`.with`](#withpatterns-callbackmatch) method.
+
+The weight of the individual import is **24 B**.
+
+#### Params
+
+- `guard(input)` - type guard function[^1]
+
+#### Returns function
+
+Use returned function as a pattern value of [`.with`](#withpatterns-callbackmatch) to validate the input.
+
+#### Examples
+
+##### Create a custom guard
+
+```ts
+interface User {
+  name: string
+}
+
+function isUser(input: unknown): input is User {
+  return input != null && typeof input === 'object' && 'name' in input
+}
+
+let input: User | null
+
+let output: string = match(input)
+  .with(when(isUser), (res) => `👋 ${res.name}`)
+  .with(null, (res) => `🤷‍♂️`)
   .run()
 ```
+
+### `list(pattern)`
+
+Creates [type guard][using-type-predicates][^1] function for narrowing the input type based on array inside [`.with`](#withpatterns-callbackmatch) method. Returned function does not check every element, only the first one.
+
+The weight of the individual import is **200 B** but shares most of the code with [`match`](#matchinput).
 
 ## 🙋‍♂️ FAQ
 
 ### How it's different from the other solutions?
 
-The difference is mostly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny footprint of the library means more understandable code, simpler types, and almost no effect on your app bundle size.
+The difference is mainly in the size of the library. It's designed to be as small as possible and **not** to handle every possible use case. A tiny library footprint means more understandable code, more straightforward types, and almost no effect on your app bundle size.
 
 If your project requires advanced pattern matching features, please have a look at amazing [`ts-pattern`](https://github.com/gvergnaud/ts-pattern) by [@gvergnaud](https://github.com/gvergnaud).
 
 ### Is it better than native `switch` & `case`?
 
-It's not better, it's just a bit different. In my opinion, the result code is cleaner, especially when you need to handle nested unions, for example:
+It's not better. It's just a bit different. In my opinion, the result code is cleaner, especially when you need to handle nested unions, for example:
 
 ```ts
 let input:
@@ -428,3 +478,15 @@ No, the library depends on [rest parameters](https://developer.mozilla.org/en-US
 ---
 
 MIT © John Grishin
+
+---
+
+[^1]: Signature of [type guard][using-type-predicates] function:
+
+    ```ts
+    function isSomething(input: unknown): input is 'something' {
+      return input === 'something'
+    }
+    ```
+
+[using-type-predicates]: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates

@@ -1,6 +1,7 @@
 import { expectType } from 'tsd'
+import { describe, test, expect } from 'vitest'
 import { Opaque } from 'type-fest'
-import { match } from '.'
+import { match, when, list } from '.'
 
 const ERROR = 'ERROR'
 const NOT_EXHAUSTIVE = 'NOT_EXHAUSTIVE'
@@ -9,6 +10,16 @@ const LITERAL = 'LITERAL'
 type LITERAL = typeof LITERAL
 
 type UUID = Opaque<string, 'UUID'>
+
+class Post {
+  id: UUID
+  title: string
+
+  constructor(title: string) {
+    this.id = id
+    this.title = title
+  }
+}
 
 enum Type {
   PENDING,
@@ -20,6 +31,7 @@ type Data =
   | { type: 'number'; value: number }
   | { type: 'string'; value: string }
   | { type: 'boolean'; value: boolean }
+  | { type: 'post'; value: Post }
 
 type Result =
   | { type: Type.PENDING; data?: never; error?: never }
@@ -456,6 +468,14 @@ describe('nested union', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { type: 'post' } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .otherwise((res) => {
           expectType<Type.PENDING | Type.FAILED>(res.type)
           expectType<undefined>(res.data)
@@ -463,7 +483,7 @@ describe('nested union', () => {
           return null
         })
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -596,6 +616,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .with({ type: Type.PENDING }, (res) => {
           expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
@@ -612,7 +640,7 @@ describe('match constructor', () => {
         })
         .run()
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -688,6 +716,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .otherwise((res) => {
           expectType<Type.PENDING | Type.FAILED>(res.type)
           expectType<undefined>(res.data)
@@ -695,7 +731,7 @@ describe('match constructor', () => {
           return null
         })
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -736,6 +772,14 @@ describe('match constructor', () => {
 
           return res.data.type
         })
+        .with({ type: Type.READY, data: { value: Post } }, (res) => {
+          expectType<Type.READY>(res.type)
+          expectType<'post'>(res.data.type)
+          expectType<Post>(res.data.value)
+          expectType<undefined>(res.error)
+
+          return res.data.type
+        })
         .with({ type: Type.PENDING }, (res) => {
           expectType<Type.PENDING>(res.type)
           expectType<undefined>(res.data)
@@ -752,7 +796,7 @@ describe('match constructor', () => {
         })
         .exhaustive(ERROR)
 
-      expectType<'number' | 'string' | 'boolean' | null>(result)
+      expectType<'number' | 'string' | 'boolean' | 'post' | null>(result)
       return result
     }
 
@@ -800,7 +844,9 @@ describe('match constructor', () => {
   })
 
   test('multiple pattern of primitives', () => {
-    function fn(input: string | symbol | number | bigint | boolean) {
+    function fn(
+      input: string | symbol | number | bigint | boolean | [string, string],
+    ) {
       const result = match(input)
         .with(Number, BigInt, (res) => {
           expectType<number | bigint>(res)
@@ -814,12 +860,17 @@ describe('match constructor', () => {
           expectType<string | symbol>(res)
           return `string | symbol: ${res.toString()}` as const
         })
+        .with([String, String], (res) => {
+          expectType<[string, string]>(res)
+          return `tuple: [${res[0]}, ${res[1]}]` as const
+        })
         .exhaustive('Unhandled input')
 
       type Result =
         | `number-like: ${number | bigint}`
         | `boolean: ${boolean}`
         | `string | symbol: ${string | boolean}`
+        | `tuple: [${string}, ${string}]`
 
       expectType<Result>(result)
       return result
@@ -829,6 +880,7 @@ describe('match constructor', () => {
     expect(fn(100n)).toBe(`number-like: 100`)
     expect(fn('text')).toBe(`string | symbol: text`)
     expect(fn(Symbol('unique'))).toBe(`string | symbol: Symbol(unique)`)
+    expect(fn(['one', 'two'])).toBe(`tuple: [one, two]`)
     expect(fn(true)).toBe(`boolean: true`)
   })
 })
@@ -899,6 +951,30 @@ describe('multi pattern union', () => {
     expect(fn(Type.FAILED)).toBe(null)
   })
 
+  test('otherwise never', () => {
+    function fn(input: LITERAL | Type) {
+      const result = match(input)
+        .with(LITERAL, Type.PENDING, Type.READY, Type.FAILED, (res) => {
+          expectType<LITERAL | Type.PENDING | Type.READY | Type.FAILED>(res)
+          return res
+        })
+        .otherwise((res) => {
+          expectType<never>(res)
+          return null
+        })
+
+      expectType<LITERAL | Type | null>(result)
+      return result
+    }
+
+    expect(fn(LITERAL)).toBe(LITERAL)
+    expect(fn(Type.PENDING)).toBe(0)
+    expect(fn(Type.READY)).toBe(1)
+    expect(fn(Type.FAILED)).toBe(2)
+    // @ts-expect-error
+    expect(fn(NOT_EXHAUSTIVE)).toBe(null)
+  })
+
   test('exhaustive', () => {
     function fn(input: LITERAL | Type) {
       const result = match(input)
@@ -952,15 +1028,10 @@ describe('multi pattern union', () => {
   })
 })
 
-describe('guards', () => {
+describe('when', () => {
   interface Author {
     id: UUID
     name: string
-  }
-
-  interface Post {
-    id: UUID
-    title: string
   }
 
   type Input = { data: Author } | { data: Post } | number[]
@@ -975,30 +1046,25 @@ describe('guards', () => {
   }
 
   function isPost(input: unknown): input is Post {
-    return (
-      typeof input === 'object' &&
-      input != null &&
-      'id' in input &&
-      'title' in input
-    )
+    return input instanceof Post
   }
 
   test('run', () => {
     function fn(input: Input) {
       const result = match(input)
-        .with({ data: isAuthor }, (res) => {
+        .with({ data: when(isAuthor) }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.name)
 
           return `Author: ${res.data.name}` as const
         })
-        .with({ data: isPost }, (res) => {
+        .with({ data: when(isPost) }, (res) => {
           expectType<UUID>(res.data.id)
           expectType<string>(res.data.title)
 
           return `Post: ${res.data.title}` as const
         })
-        .with(Array.isArray, (res) => {
+        .with(when(Array.isArray), (res) => {
           expectType<number[]>(res)
           return `Array: ${res.join(', ')}` as const
         })
@@ -1011,9 +1077,38 @@ describe('guards', () => {
     }
 
     expect(fn({ data: { id, name: 'John' } })).toBe('Author: John')
-    expect(fn({ data: { id, title: 'Bar' } })).toBe('Post: Bar')
+    expect(fn({ data: new Post('Bar') })).toBe('Post: Bar')
     expect(fn([1, 2, 3])).toBe('Array: 1, 2, 3')
     // @ts-expect-error
     expect(fn(NOT_EXHAUSTIVE)).toBe(undefined)
+  })
+})
+
+describe('list', () => {
+  test('exhaustive', () => {
+    interface User {
+      name: string
+    }
+
+    function isUser(input: unknown): input is User {
+      return input != null && typeof input === 'object' && 'name' in input
+    }
+
+    function fn(input: User | User[] | []) {
+      const result = match(input)
+        .with(when(isUser), (res) => `👋 ${res.name}` as const)
+        .with(list(isUser), (res) => `👯‍♀️ ${res.length}` as const)
+        .with([], () => `🤷‍♂️` as const)
+        .exhaustive(ERROR)
+
+      expectType<`👋 ${string}` | `👯‍♀️ ${number}` | `🤷‍♂️`>(result)
+      return result
+    }
+
+    expect(fn({ name: 'John' })).toBe('👋 John')
+    expect(fn([])).toBe('🤷‍♂️')
+    expect(fn([{ name: 'John' }, { name: 'Kate' }])).toBe('👯‍♀️ 2')
+    // @ts-expect-error
+    expect(() => fn([{}])).toThrow(new Error(ERROR))
   })
 })

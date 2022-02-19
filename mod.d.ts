@@ -1,3 +1,5 @@
+declare const TAG: unique symbol
+
 type Primitives = number | boolean | string | symbol | bigint | undefined | null
 
 type IsOpaque<T> = T extends object
@@ -46,8 +48,16 @@ interface Guard<Input, Type extends Input> {
   (input: Input): input is Type
 }
 
+interface When<Input, Type extends Input> extends Guard<Input, Type> {
+  [TAG]: 1
+}
+
+interface Constructor<T> {
+  new (...args: any[]): T
+}
+
 type Pattern<Input> =
-  | Guard<Input, Input>
+  | When<Input, Input>
   | (Input extends number
       ? Input | NumberConstructor
       : Input extends string
@@ -58,13 +68,11 @@ type Pattern<Input> =
       ? Input | SymbolConstructor
       : Input extends bigint
       ? Input | BigIntConstructor
-      : Input extends Primitives
-      ? Input
       : Input extends object
-      ? { [K in keyof Input]?: Pattern<Input[K]> }
-      : never)
+      ? { [K in keyof Input]?: Pattern<Input[K]> } | Constructor<Input>
+      : Input)
 
-type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
+type Invert<Pattern> = Pattern extends When<infer _, infer P>
   ? P
   : Pattern extends NumberConstructor
   ? number
@@ -76,11 +84,11 @@ type Invert<Pattern> = Pattern extends Guard<infer _, infer P>
   ? symbol
   : Pattern extends BigIntConstructor
   ? bigint
-  : Pattern extends Primitives
-  ? Pattern
+  : Pattern extends Constructor<infer C>
+  ? C
   : Pattern extends object
   ? { [K in keyof Pattern]: Invert<Pattern[K]> }
-  : never
+  : Pattern
 
 interface NonExhaustive<_> {}
 
@@ -88,22 +96,28 @@ interface Match<Input, Next = Input, Output = never> {
   with<P extends Pattern<Input>, O, I = Invert<P>, R = DeepExtract<Input, I>>(
     pattern: P,
     callback: (result: R) => O,
-  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
+  ): Match<Input, DeepExclude<Next, I>, O | Output>
   with<
-    P extends [Pattern<Input>, ...Pattern<Input>[]],
+    P extends Pattern<Input>[],
     O,
     I = Invert<P[number]>,
     R = DeepExtract<Input, I>,
   >(
     ...args: [...patterns: P, callback: (result: R) => O]
-  ): Match<Exclude<Input, I>, DeepExclude<Next, I>, O | Output>
+  ): Match<Input, DeepExclude<Next, I>, O | Output>
   run(): [Next] extends [never] ? Output : Output | undefined
-  otherwise: [Next] extends [never]
-    ? never
-    : <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
+  otherwise: <Fallback>(cb: (result: Next) => Fallback) => Output | Fallback
   exhaustive: [Next] extends [never]
     ? (errorMessage: string) => Output
     : NonExhaustive<Next>
 }
+
+export declare function when<Input, Type extends Input>(
+  guard: Guard<Input, Type>,
+): When<Input, Type>
+
+export declare function list<Input, Type extends Input>(
+  pattern: Guard<Input, Type> | Pattern<Input>,
+): When<Input, Type>[]
 
 export declare function match<Input>(input: Input): Match<Input>

@@ -1,40 +1,49 @@
-let UNKNOWN = []
+let TAG = Symbol()
 
-let isObject = (input) => input && typeof input === 'object'
+let is = (type, input) =>
+  input != null &&
+  (type === Object ? typeof input === 'object' : Object(input) instanceof type)
+
 let compare = (input) => (pattern) => {
-  if (pattern === Boolean) return typeof input === 'boolean'
-  if (pattern === String) return typeof input === 'string'
-  if (pattern === Number) return typeof input === 'number'
-  if (pattern === Symbol) return typeof input === 'symbol'
-  if (pattern === BigInt) return typeof input === 'bigint'
-  if (typeof pattern === 'function') return pattern(input)
+  if (typeof pattern === 'function') {
+    return pattern[TAG] ? pattern(input) : is(pattern, input)
+  }
 
-  if (isObject(pattern)) {
-    return (
-      isObject(input) &&
-      Object.keys(pattern).every((key) => compare(input[key])(pattern[key]))
-    )
+  if (is(Object, pattern) && is(Object, input)) {
+    let keys = Object.keys(pattern)
+    return keys.length
+      ? keys.every((key) => compare(input[key])(pattern[key]))
+      : !input.length
   }
 
   return Object.is(input, pattern)
 }
 
-export let match = (input, output = UNKNOWN) => ({
+export let when = (fn) => {
+  fn[TAG] = 1
+  return fn
+}
+
+export let list = (pattern) =>
+  when((input) => is(Array, input) && compare(input)([pattern]))
+
+export let match = (input, output = TAG) => ({
   with(...patterns) {
     let callback = patterns.pop()
-    if (patterns.some(compare(input))) output = callback(input)
+    if (output === TAG && patterns.some(compare(input)))
+      output = callback(input)
     return this
   },
   exhaustive(message) {
-    if (output === UNKNOWN) throw Error(message)
+    if (output === TAG) throw Error(message)
     return output
   },
   otherwise(cb) {
-    if (output === UNKNOWN) return cb(input)
+    if (output === TAG) return cb(input)
     return output
   },
   run() {
-    if (output === UNKNOWN) return
+    if (output === TAG) return
     return output
   },
 })
