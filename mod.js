@@ -13,7 +13,7 @@ let compare = (input) => (pattern) => {
     let keys = Object.keys(pattern)
     return keys.length
       ? keys.every((key) => compare(input[key])(pattern[key]))
-      : !Object.keys(input).length
+      : !input.length
   }
 
   return Object.is(input, pattern)
